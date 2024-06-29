@@ -10,5 +10,6 @@ module.exports = {
     cert: fs.readFileSync(path.join(__dirname, process.env.IDP_CERTIFICATE_PATH), 'utf-8'),
     validateInResponseTo: true,
     passive: false,
-    disableRequestedAuthnContext: true
+    disableRequestedAuthnContext: true,
+    
 };
