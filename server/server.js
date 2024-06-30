@@ -6,16 +6,17 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 // Import routes
 const authRoutes = require('./routes/auth');
 
 const app = express();
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors({
+    origin: 'http://localhost:3001', // React app origin
+    credentials: true
+}));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
@@ -37,14 +38,6 @@ passport.deserializeUser((user, done) => {
 
 // Use the auth routes
 app.use('/', authRoutes);
-
-// Show the home page
-app.post('/app/home', (req, res) => {
-    res.render('home', {
-        title: 'Express Web Application',
-        heading: 'Express Web Application'
-    });
-});
 
 app.listen(process.env.PORT || 3000, () => {
     console.log(`Server is running on port ${process.env.PORT || 3000}`);

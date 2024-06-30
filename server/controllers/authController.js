@@ -31,8 +31,8 @@ const redirectToLogin = (req, res, next) => {
 };
 
 const handleLogin = passport.authenticate('saml', {
-    successRedirect: '/app',
-    failureRedirect: '/app/login',
+    successRedirect: 'http://localhost:3001/', // Redirect to React app
+    failureRedirect: '/app/failed',
     failureFlash: true
 });
 
@@ -50,23 +50,23 @@ const handleSamlConsumeRedirect = (req, res) => {
         const xmlString = Buffer.from(base64String, 'base64').toString('utf-8');
         console.log('SAML XML Response:', xmlString);  // Log the SAML XML response
     }
-    return res.redirect('/app');
+    return res.redirect('http://localhost:3001/'); // Redirect to React app
 };
 
 const handleLogout = (req, res) => {
     if (req.user == null) {
-        return res.redirect('/app/home');
+        return res.redirect('http://localhost:3001/');
     }
 
     strategy.logout(req, (err, uri) => {
         if (err) {
             console.error('Logout Error:', err);  // Log errors during logout
-            return res.redirect('/app');
+            return res.redirect('http://localhost:3001/');
         }
         req.logout((err) => {  // Added callback for req.logout
             if (err) {
                 console.error('Logout Error:', err);  // Log errors during logout
-                return res.redirect('/app');
+                return res.redirect('http://localhost:3001/');
             }
             userProfile = null;
             return res.redirect(uri);
@@ -75,7 +75,15 @@ const handleLogout = (req, res) => {
 };
 
 const handleFailedLogin = (req, res) => {
-    res.status(401).send('Login failed');
+    res.status(401).json({ message: 'Login failed' });
+};
+
+const checkAuthStatus = (req, res) => {
+    if (req.isAuthenticated() && userProfile != null) {
+        res.json({ authenticated: true });
+    } else {
+        res.json({ authenticated: false });
+    }
 };
 
 module.exports = {
@@ -84,5 +92,6 @@ module.exports = {
     handleSamlConsume,
     handleSamlConsumeRedirect,
     handleLogout,
-    handleFailedLogin
+    handleFailedLogin,
+    checkAuthStatus
 };
