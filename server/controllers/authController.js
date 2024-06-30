@@ -54,25 +54,28 @@ const handleSamlConsumeRedirect = (req, res) => {
 };
 
 const handleLogout = (req, res) => {
-    if (req.user == null) {
-        return res.redirect('http://localhost:3001/');
+    if (!req.isAuthenticated()) {
+      return res.redirect('/app');
     }
-
+  
     strategy.logout(req, (err, uri) => {
+      if (err) {
+        console.error('Logout Error:', err);
+        return res.redirect('/app');
+      }
+  
+      req.logout((err) => {
         if (err) {
-            console.error('Logout Error:', err);  // Log errors during logout
-            return res.redirect('http://localhost:3001/');
+          console.error('Logout Error:', err);
+          return res.redirect('/app');
         }
-        req.logout((err) => {  // Added callback for req.logout
-            if (err) {
-                console.error('Logout Error:', err);  // Log errors during logout
-                return res.redirect('http://localhost:3001/');
-            }
-            userProfile = null;
-            return res.redirect(uri);
-        });
+  
+        userProfile = null;
+        return res.redirect(uri);
+      });
     });
-};
+  };
+  
 
 const handleFailedLogin = (req, res) => {
     res.status(401).json({ message: 'Login failed' });

@@ -13,10 +13,13 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 
-app.use(cors({
-    origin: 'http://localhost:3001', // React app origin
-    credentials: true
-}));
+
+const corsOptions = {
+  origin: 'http://localhost:3001',
+  credentials: true // Allow credentials (cookies, authorization headers, etc.)
+};
+
+app.use(cors(corsOptions));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({

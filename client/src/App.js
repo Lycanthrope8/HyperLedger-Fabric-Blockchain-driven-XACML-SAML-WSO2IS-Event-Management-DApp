@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
     axios.get('http://localhost:3000/app/status', { withCredentials: true })
       .then(response => {
-        setIsAuthenticated(response.data.authenticated);
+        setAuthenticated(response.data.authenticated);
       })
       .catch(error => {
         console.error('Error checking authentication status:', error);
@@ -17,8 +17,8 @@ function App() {
 
   const handleLogout = () => {
     axios.get('http://localhost:3000/app/logout', { withCredentials: true })
-      .then(() => {
-        setIsAuthenticated(false);
+      .then(response => {
+        setAuthenticated(false);
       })
       .catch(error => {
         console.error('Error logging out:', error);
@@ -27,33 +27,36 @@ function App() {
 
   return (
     <Router>
-      <div className="App">
-        <header className="App-header">
-          <h1>Welcome</h1>
-          {!isAuthenticated ? (
-            <a href="http://localhost:3000/app/login">Sign in using SSO</a>
-          ) : (
-            <button onClick={handleLogout}>Logout</button>
-          )}
-        </header>
-        <Routes>
-          <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
-          <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/home" element={authenticated ? <Home handleLogout={handleLogout} /> : <Navigate to="/" />} />
+        <Route path="/" element={<Login authenticated={authenticated} />} />
+      </Routes>
     </Router>
   );
 }
 
-function Home() {
-  return <h2>Home Page</h2>;
+function Home({ handleLogout }) {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <h1>Welcome</h1>
+        <button onClick={handleLogout}>Logout</button>
+      </header>
+    </div>
+  );
 }
 
-function Login() {
+function Login({ authenticated }) {
+  if (authenticated) {
+    return <Navigate to="/home" />;
+  }
+
   return (
-    <div>
-      <h2>Login Page</h2>
-      <a href="http://localhost:3000/app/login">Sign in using SSO</a>
+    <div className="App">
+      <header className="App-header">
+        <h1>Please sign in</h1>
+        <a href="http://localhost:3000/app/login">Sign in using SSO</a>
+      </header>
     </div>
   );
 }
