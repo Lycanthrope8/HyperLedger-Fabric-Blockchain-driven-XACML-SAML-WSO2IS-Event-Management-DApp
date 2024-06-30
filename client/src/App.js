@@ -6,7 +6,7 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/app/status', { withCredentials: true })
+    axios.get('https://localhost:3000/app/status', { withCredentials: true })
       .then(response => {
         setAuthenticated(response.data.authenticated);
       })
@@ -16,7 +16,7 @@ function App() {
   }, []);
 
   const handleLogout = () => {
-    axios.get('http://localhost:3000/app/logout', { withCredentials: true })
+    axios.get('https://localhost:3000/app/logout', { withCredentials: true })
       .then(response => {
         setAuthenticated(false);
       })
@@ -55,7 +55,7 @@ function Login({ authenticated }) {
     <div className="App">
       <header className="App-header">
         <h1>Please sign in</h1>
-        <a href="http://localhost:3000/app/login">Sign in using SSO</a>
+        <a href="https://localhost:3000/app/login">Sign in using SSO</a>
       </header>
     </div>
   );

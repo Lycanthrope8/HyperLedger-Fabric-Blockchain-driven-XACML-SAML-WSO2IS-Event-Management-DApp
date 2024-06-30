@@ -31,7 +31,7 @@ const redirectToLogin = (req, res, next) => {
 };
 
 const handleLogin = passport.authenticate('saml', {
-    successRedirect: 'http://localhost:3001/', // Redirect to React app
+    successRedirect: 'https://localhost:3001/', // Redirect to React app
     failureRedirect: '/app/failed',
     failureFlash: true
 });
@@ -50,7 +50,7 @@ const handleSamlConsumeRedirect = (req, res) => {
         const xmlString = Buffer.from(base64String, 'base64').toString('utf-8');
         console.log('SAML XML Response:', xmlString);  // Log the SAML XML response
     }
-    return res.redirect('http://localhost:3001/'); // Redirect to React app
+    return res.redirect('https://localhost:3001/'); // Redirect to React app
 };
 
 const handleLogout = (req, res) => {
