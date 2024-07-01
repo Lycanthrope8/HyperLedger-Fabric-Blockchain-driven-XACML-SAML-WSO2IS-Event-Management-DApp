@@ -54,28 +54,21 @@ const handleSamlConsumeRedirect = (req, res) => {
 };
 
 const handleLogout = (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.redirect('/app');
+    if (!req.isAuthenticated() || req.user == null) {
+        return res.redirect('https://localhost:3001/');
     }
-  
-    strategy.logout(req, (err, uri) => {
-      if (err) {
-        console.error('Logout Error:', err);
-        return res.redirect('/app');
-      }
-  
-      req.logout((err) => {
+
+    req.logout((err) => {
         if (err) {
-          console.error('Logout Error:', err);
-          return res.redirect('/app');
+            console.error('Error during logout:', err);
+            return res.status(500).send('Error during logout');
         }
-  
+
         userProfile = null;
-        return res.redirect(uri);
-      });
+        return res.redirect('https://localhost:3001'); // Redirect to IdP logout endpoint
     });
-  };
-  
+};
+
 
 const handleFailedLogin = (req, res) => {
     res.status(401).json({ message: 'Login failed' });
