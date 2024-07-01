@@ -19,4 +19,5 @@ router.get('/app/failed', authController.handleFailedLogin);
 
 router.get('/app/status', authController.checkAuthStatus);
 
+
 module.exports = router;

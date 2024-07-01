@@ -9,7 +9,8 @@ const path = require('path');
 require('dotenv').config();
 
 // Import routes
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');  
 
 const app = express();
 
@@ -21,7 +22,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+app.options('*', cors(corsOptions)); 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -42,8 +43,10 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 
-// Use the auth routes
+
 app.use('/', authRoutes);
+
+app.use('/app', userRoutes);  
 
 const httpsOptions = {
   key: fs.readFileSync(path.join(__dirname, 'security', 'server.key')),

@@ -7,7 +7,7 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <h1>App Name</h1>
+      <h1>SAML x MERN</h1>
       <button onClick={handleLogout}>Logout</button>
     </nav>
   );
