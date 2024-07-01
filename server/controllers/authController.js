@@ -65,7 +65,7 @@ const handleLogout = (req, res) => {
         }
 
         userProfile = null;
-        return res.redirect('https://localhost:3001'); // Redirect to IdP logout endpoint
+        return res.redirect('https://localhost:9443/samlsso'); // Redirect to IdP logout endpoint
     });
 };
 
