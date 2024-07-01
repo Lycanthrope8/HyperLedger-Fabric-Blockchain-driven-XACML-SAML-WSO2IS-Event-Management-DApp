@@ -1,16 +1,16 @@
 import React from 'react';
+import AdminPanelButton from '../components/AdminPanelButton';
+import UserPanelButton from '../components/UserPanelButton';
+import Navbar from '../components/Navbar';
 
 function Home() {
-  const handleLogout = () => {
-    window.location.href = 'https://localhost:3000/app/logout';
-  };
-
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>Welcome</h1>
-        <button onClick={handleLogout}>Logout</button>
-      </header>
+      <Navbar />
+      <div className="button-container">
+        <AdminPanelButton />
+        <UserPanelButton />
+      </div>
     </div>
   );
 }
