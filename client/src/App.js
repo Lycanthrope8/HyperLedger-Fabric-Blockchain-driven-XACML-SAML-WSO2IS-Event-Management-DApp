@@ -16,13 +16,14 @@ function App() {
   }, []);
 
   const handleLogout = () => {
-    axios.get('https://localhost:3000/app/logout', { withCredentials: true })
-      .then(response => {
-        setAuthenticated(false);
-      })
-      .catch(error => {
-        console.error('Error logging out:', error);
-      });
+    window.location.href = 'https://localhost:3000/app/logout';
+    // axios.get('https://localhost:3000/app/logout', { withCredentials: true })
+    //   .then(response => {
+    //     setAuthenticated(false);
+    //   })
+    //   .catch(error => {
+    //     console.error('Error logging out:', error);
+    //   });
   };
 
   return (
