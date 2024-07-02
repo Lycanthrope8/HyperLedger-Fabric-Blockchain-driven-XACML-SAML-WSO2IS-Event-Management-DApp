@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import useAuth from './hooks/useAuth';
 import UserPanel from './pages/UserPanel'
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
   const { authenticated } = useAuth();
@@ -14,6 +15,7 @@ function App() {
         <Route path="/home" element={authenticated ? <Home /> : <Navigate to="/" />} />
         <Route path="/" element={<Login authenticated={authenticated} />} />
         <Route path="/user-panel" element={<UserPanel authenticated={authenticated} />} />
+        <Route path="/admin-panel" element={<AdminPanel authenticated={authenticated} />} />
 
       </Routes>
     </Router>
