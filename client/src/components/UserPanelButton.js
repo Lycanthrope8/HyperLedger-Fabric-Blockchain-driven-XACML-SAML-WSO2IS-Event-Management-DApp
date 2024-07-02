@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
+import useCheckUserAccess from "../hooks/useCheckUserAccess";
 import "./Button.css";
 
 const UserPanelButton = () => {
-  const [userInfo, setUserInfo] = useState(null);
+  const { checkUserAccess, loading, error } = useCheckUserAccess();
 
   const handleUserClick = async () => {
     try {
-      // Fetch user profile information from backend
       const userInfoResponse = await fetch("https://localhost:3000/app/user-info", {
         method: "GET",
         credentials: "include",
@@ -17,36 +17,13 @@ const UserPanelButton = () => {
       }
 
       const userData = await userInfoResponse.json();
-      setUserInfo(userData);
 
-      // Check user access via backend API
-      const checkAccessResponse = await fetch("https://localhost:3000/app/check-access", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: userData.username,
-          resource: "/user-panel",
-          action: "GET",
-        }),
-        credentials: "include",
-      });
+      const redirectUrl = await checkUserAccess(userData.username, "/user-panel", "GET");
 
-      if (checkAccessResponse.status === 403) {
-        // Handle unauthorized access without throwing an error
-        alert("You are not authorized for this resource");
-        return;
-      }
-
-      if (!checkAccessResponse.ok) {
-        throw new Error(`Access check failed! Status: ${checkAccessResponse.status}`);
-      }
-
-      const accessData = await checkAccessResponse.json();
-
-      if (accessData.redirect) {
-        window.location.href = accessData.redirect;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else if (error) {
+        alert(error);
       }
     } catch (error) {
       console.error("Error fetching user info or checking access:", error);
@@ -55,8 +32,8 @@ const UserPanelButton = () => {
   };
 
   return (
-    <button className="panel-button" onClick={handleUserClick}>
-      User Panel
+    <button className="panel-button" onClick={handleUserClick} disabled={loading}>
+      {loading ? "Loading..." : "User Panel"}
     </button>
   );
 };
