@@ -8,15 +8,14 @@ import AdminPanel from './pages/AdminPanel';
 
 function App() {
   const { authenticated } = useAuth();
-  console.log(authenticated)
 
   return (
     <Router>
       <Routes>
         <Route path="/home" element={authenticated ? <Home /> : <Navigate to="/" />} />
         <Route path="/" element={<Login authenticated={authenticated} />} />
-        <Route path="/user-panel" element={authenticated ? <UserPanel /> : <Navigate to="/home" />} />
-        <Route path="/admin-panel" element={authenticated ? <AdminPanel /> : <Navigate to="/home" />} />
+        <Route path="/user-panel" element={<UserPanel authenticated={authenticated} />} />
+        <Route path="/admin-panel" element={<AdminPanel authenticated={authenticated} />} />
 
       </Routes>
     </Router>
