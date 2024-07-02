@@ -17,12 +17,12 @@ const app = express();
 const corsOptions = {
   origin: 'https://localhost:3001',
   methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
+app.options('*', cors(corsOptions));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
