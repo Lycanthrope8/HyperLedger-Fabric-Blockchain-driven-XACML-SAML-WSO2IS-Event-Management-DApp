@@ -48,7 +48,7 @@ const handleSamlConsumeRedirect = (req, res) => {
     if (req.body.SAMLResponse) {
         const base64String = req.body.SAMLResponse;
         const xmlString = Buffer.from(base64String, 'base64').toString('utf-8');
-        // console.log('SAML XML Response:', xmlString);   
+        console.log('SAML XML Response:', xmlString);   
     }
     return res.redirect('https://localhost:3001/');  
 };
