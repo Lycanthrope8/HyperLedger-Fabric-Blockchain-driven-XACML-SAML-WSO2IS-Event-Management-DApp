@@ -4,7 +4,9 @@ import UserPanelButton from '../components/UserPanelButton';
 import Navbar from '../components/Navbar';
 import useUserInfo from '../hooks/useUserInfo';
 
+
 function Home() {
+
   const { userInfo, loading, error } = useUserInfo();
 
   if (loading) {
