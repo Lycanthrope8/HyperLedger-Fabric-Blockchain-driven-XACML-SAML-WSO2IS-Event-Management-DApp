@@ -16,7 +16,7 @@ function Home() {
   if (error) {
     return <div>Error: {error}</div>;
   }
-
+  
   return (
     <div className="App">
       <Navbar />

@@ -26,7 +26,6 @@ const getUserProfile = (req, res) => {
 
 const checkUserAccess = async (req, res) => {
   const { username, resource, action } = req.body;
-
   try {
     const pdpResponse = await pdpQuery(username, resource, action);
 
