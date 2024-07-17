@@ -18,6 +18,11 @@ const useCheckUserAccess = () => {
         credentials: 'include',
       });
 
+      if (response.status === 403) {
+        setError("You are not authorized for this resource");
+        return false;
+      }
+
       if (!response.ok) {
         throw new Error(`Access check failed! Status: ${response.status}`);
       }

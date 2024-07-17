@@ -1,8 +1,11 @@
+// AdminPanelButton.js
 import React from 'react';
 import useCheckUserAccess from '../hooks/useCheckUserAccess';
+import { useUser } from '../context/UserContext';
 import "./Button.css";
 
-const AdminPanelButton = ({ userInfo }) => {
+const AdminPanelButton = () => {
+  const { userInfo } = useUser();
   const { checkUserAccess, loading, error } = useCheckUserAccess();
 
   const handleAdminClick = async () => {

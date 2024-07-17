@@ -1,8 +1,11 @@
+// UserPanelButton.js
 import React from 'react';
 import useCheckUserAccess from '../hooks/useCheckUserAccess';
+import { useUser } from '../context/UserContext';
 import "./Button.css";
 
-const UserPanelButton = ({ userInfo }) => {
+const UserPanelButton = () => {
+  const { userInfo } = useUser();
   const { checkUserAccess, loading, error } = useCheckUserAccess();
 
   const handleUserClick = async () => {
@@ -12,6 +15,7 @@ const UserPanelButton = ({ userInfo }) => {
       }
 
       const redirectUrl = await checkUserAccess(userInfo.username, "/user-panel", "GET");
+
       if (redirectUrl) {
         window.location.href = redirectUrl.redirect;
       } else if (error) {
