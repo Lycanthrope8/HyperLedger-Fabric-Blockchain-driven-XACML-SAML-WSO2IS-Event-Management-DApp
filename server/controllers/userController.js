@@ -41,7 +41,7 @@ const checkUserAccess = async (req, res) => {
 
     if (decision === "Permit") {
       // Send a JSON response for redirection
-      res.json({ redirect: `https://localhost:3001${resource}` });
+      res.json({ redirect: `https://localhost:3001${resource}`, decision });
     } else {
       // Handle "Deny" and "NotApplicable" cases
       res

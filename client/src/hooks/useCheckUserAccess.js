@@ -23,7 +23,8 @@ const useCheckUserAccess = () => {
       }
 
       const result = await response.json();
-      return result.redirect || null;
+      
+      return result || null;
     } catch (error) {
       setError(error.message);
       return null;

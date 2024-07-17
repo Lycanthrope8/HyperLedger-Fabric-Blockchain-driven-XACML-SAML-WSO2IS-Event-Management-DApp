@@ -14,7 +14,7 @@ const AdminPanelButton = ({ userInfo }) => {
       const redirectUrl = await checkUserAccess(userInfo.username, "/admin-panel", "GET");
 
       if (redirectUrl) {
-        window.location.href = redirectUrl;
+        window.location.href = redirectUrl.redirect;
       } else if (error) {
         alert(error);
       }
