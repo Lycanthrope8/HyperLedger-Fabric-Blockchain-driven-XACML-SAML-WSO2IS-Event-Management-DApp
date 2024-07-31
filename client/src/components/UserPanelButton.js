@@ -28,7 +28,7 @@ const UserPanelButton = () => {
   };
 
   return (
-    <button className="panel-button" onClick={handleUserClick} disabled={loading}>
+    <button className="text-[#dbd8e3] font-bold border-[#DBD8E3] border-2 rounded-full px-24 py-8 transition-all hover:bg-[#5c5470] hover:border-[#5c5470]" onClick={handleUserClick} disabled={loading}>
       {loading ? "Loading..." : "User Panel"}
     </button>
   );

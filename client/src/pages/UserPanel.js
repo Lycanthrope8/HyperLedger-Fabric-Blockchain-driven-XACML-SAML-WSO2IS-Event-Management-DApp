@@ -36,8 +36,8 @@ const UserPanel = () => {
 
   return (
     isAuthorized !== false && (
-      <div>
-        <h1>This is User Panel</h1>
+      <div className='w-full h-full flex justify-center items-center'>
+        <h1 className='text-lg'>This is User Panel</h1>
       </div>
     )
   );
