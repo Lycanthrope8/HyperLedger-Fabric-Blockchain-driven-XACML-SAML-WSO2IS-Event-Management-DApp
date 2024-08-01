@@ -117,15 +117,13 @@ This project demonstrates a robust and secure role-based access control system u
 ### Running the client
 
 1. Navigate to the `client` directory and start the React app:
-```
-npm start
-
-```
+   ```
+   npm start
+   ```
 
 ### Running the server
 
 1. Navigate to the `server` directory and start the Node.js server:
-```
-nodemon server.js
-
-```
+   ```
+   nodemon server.js
+   ```
