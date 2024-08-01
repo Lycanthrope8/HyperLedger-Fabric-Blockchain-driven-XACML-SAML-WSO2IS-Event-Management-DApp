@@ -20,6 +20,7 @@ This project demonstrates a robust and secure role-based access control system u
 - **Security & Access Control:** XACML, SAML, WSO2 Server
 - **Languages:** JavaScript
 
+
 ## Folder Structure
 
 ### Client
@@ -103,8 +104,13 @@ This project demonstrates a robust and secure role-based access control system u
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/yourrepository.git
-   cd yourrepository
+   git clone https://github.com/Lycanthrope8/SAML-Authentication-using-MERN-PassportJS-WSO2.git
+   cd SAML-Authentication-using-MERN-PassportJS-WSO2
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
 
 ## Usage
 
