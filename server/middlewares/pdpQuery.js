@@ -16,7 +16,7 @@ const pdpQuery = async (username, resource, action) => {
             .replace('{{username}}', username)
             .replace('{{action}}', action);
 
-        const pdpResponse = await fetch('https://localhost:9443/api/identity/entitlement/decision/pdp', {
+        const pdpResponse = await fetch('https://localhost:9447/api/identity/entitlement/decision/pdp', {
             method: 'POST',
             headers: {
                 Authorization: 'Basic ' + base64.encode(`${process.env.WSO2_ADMIN}:${process.env.WSO2_ADMIN_PASS}`),

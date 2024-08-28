@@ -64,7 +64,7 @@ const handleLogout = (req, res) => {
             return res.status(500).send('Error during logout');
         }
 
-        return res.redirect('https://localhost:9443/samlsso');  
+        return res.redirect('https://localhost:9447/samlsso');  
     });
 };
 
