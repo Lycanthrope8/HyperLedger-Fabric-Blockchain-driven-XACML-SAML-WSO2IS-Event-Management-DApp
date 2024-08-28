@@ -1,27 +1,6 @@
 'use strict';
 
-const passport = require('passport');  
-
-const SamlStrategy = require('passport-saml').Strategy;
-const samlConfig = require('../config/saml-config');
-const { extractUserProfile } = require('../controllers/userController');
-
-// Configure SAML Strategy for Passport
-const strategy = new SamlStrategy(samlConfig, (profile, done) => {
-    const userProfile = extractUserProfile(profile);  
-    console.log('SAML Profile:', userProfile);  
-    done(null, userProfile);
-});
-
-passport.use(strategy);
-
-passport.serializeUser((user, done) => {
-    done(null, user);
-});
-
-passport.deserializeUser((user, done) => {
-    done(null, user);
-});
+const passport = require('../config/passport-config');
 
 const redirectToLogin = (req, res, next) => {
     if (!req.isAuthenticated()) {
@@ -48,7 +27,7 @@ const handleSamlConsumeRedirect = (req, res) => {
     if (req.body.SAMLResponse) {
         const base64String = req.body.SAMLResponse;
         const xmlString = Buffer.from(base64String, 'base64').toString('utf-8');
-        console.log('SAML XML Response:', xmlString);   
+        // console.log('SAML XML Response:', xmlString);   
     }
     return res.redirect('https://localhost:3001/');  
 };

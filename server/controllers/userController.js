@@ -3,7 +3,7 @@
 const { JSDOM } = require("jsdom");
 
 const extractUserProfile = (profile) => {
-  console.log("Profile:", profile);
+  // console.log("Profile:", profile);
   return {
     displayName: profile[process.env.WSO2_DISPLAYNAME_CLAIM] || "",
     email: profile[process.env.WSO2_EMAIL_CLAIM] || "",

@@ -1,15 +1,13 @@
 const express = require('express');
 const session = require('express-session');
-const passport = require('passport');
+const passport = require('./config/passport-config'); 
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
-
-// Import routes
 const authRoutes = require('./routes/authRoutes');
+require('dotenv').config();
 
 
 const app = express();
@@ -35,17 +33,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user, done) => {
-    done(null, user);
-});
-
-passport.deserializeUser((user, done) => {
-    done(null, user);
-});
-
-
 app.use('/', authRoutes);
-
 
 const httpsOptions = {
   key: fs.readFileSync(path.join(__dirname, 'security', 'server.key')),
