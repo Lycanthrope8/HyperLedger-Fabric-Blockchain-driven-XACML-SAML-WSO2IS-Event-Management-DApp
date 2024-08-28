@@ -1,15 +1,15 @@
 'use strict';
 
-const passport = require('passport');
-const { extractUserProfile } = require('../controllers/userController');  
+const passport = require('passport');  
 
 const SamlStrategy = require('passport-saml').Strategy;
 const samlConfig = require('../config/saml-config');
+const { extractUserProfile } = require('../controllers/userController');
 
 // Configure SAML Strategy for Passport
 const strategy = new SamlStrategy(samlConfig, (profile, done) => {
     const userProfile = extractUserProfile(profile);  
-    // console.log('SAML Profile:', userProfile);  
+    console.log('SAML Profile:', userProfile);  
     done(null, userProfile);
 });
 

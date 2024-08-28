@@ -10,7 +10,7 @@ require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');  
+
 
 const app = express();
 
@@ -46,7 +46,6 @@ passport.deserializeUser((user, done) => {
 
 app.use('/', authRoutes);
 
-app.use('/app', userRoutes);  
 
 const httpsOptions = {
   key: fs.readFileSync(path.join(__dirname, 'security', 'server.key')),

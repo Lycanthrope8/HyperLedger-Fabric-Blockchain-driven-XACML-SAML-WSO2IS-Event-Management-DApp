@@ -7,9 +7,8 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import NotAuthorized from "./pages/NotAuthorized";
 import useAuth from "./hooks/useAuth";
-import { UserProvider } from "./context/UserContext";
+import NotAuthorized from "./pages/NotAuthorized";
 
 function App() {
   const { authenticated, loading } = useAuth();
@@ -19,7 +18,6 @@ function App() {
   }
 
   return (
-    <UserProvider>
       <Router>
         <Routes>
           <Route
@@ -30,7 +28,6 @@ function App() {
           <Route path="/not-authorized" element={<NotAuthorized />} />
         </Routes>
       </Router>
-    </UserProvider>
   );
 }
 
