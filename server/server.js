@@ -7,8 +7,8 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes');
+const xacmlRoutes = require('./routes/xacmlRoutes'); // Add this line
 require('dotenv').config();
-
 
 const app = express();
 
@@ -34,6 +34,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', authRoutes);
+app.use('/xacml', xacmlRoutes); // Use XACML routes
 
 const httpsOptions = {
   key: fs.readFileSync(path.join(__dirname, 'security', 'server.key')),

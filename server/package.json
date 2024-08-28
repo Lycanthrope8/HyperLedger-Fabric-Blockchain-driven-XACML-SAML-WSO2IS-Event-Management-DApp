@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@grpc/grpc-js": "^1.11.1",
+    "@hyperledger/fabric-gateway": "^1.5.1",
     "base-64": "^1.0.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
