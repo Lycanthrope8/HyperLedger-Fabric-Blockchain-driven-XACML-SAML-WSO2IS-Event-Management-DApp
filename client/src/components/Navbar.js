@@ -1,22 +1,24 @@
 import React from 'react';
-import useAuthorization from '../hooks/useAuthorization'; // Make sure this path matches where you save your hook file
+import { useNavigate } from 'react-router-dom';
+import useAuthorization from '../hooks/useAuthorization';
 
 function Navbar() {
-  const subject = 'alice.smith';
-  const action = 'write';
-  const resource = 'adminPanel';
+  const navigate = useNavigate();
 
-  const { isAuthorized, loading, error } = useAuthorization(subject, action, resource);
+  const { isAuthorized, loading, error } = useAuthorization('alice.smith', 'write', 'adminPanel');
+
+  // Consider keeping the loading state until authorization is confirmed
+  const isLoading = loading || !isAuthorized;
 
   const handleLogout = () => {
     console.log('Logging out...');
-    window.location.href = 'https://localhost:3000/app/logout';
+    navigate('/app/logout');
   };
 
   const handleAdmin = () => {
     console.log('Admin clicked');
     if (isAuthorized) {
-      window.location.href = 'https://localhost:3000/app/admin';
+      navigate('/admin');
     } else {
       alert('You are not authorized to access the admin page.');
     }
@@ -27,7 +29,8 @@ function Navbar() {
       <h1 className="text-2xl font-bold">SAML x MERN</h1>
       <div>
         {error && <div className="text-red-500">Error: {error.message || 'Server error'}</div>}
-        {isAuthorized && !loading && !error && (
+        {isLoading && <div>Loading...</div>}
+        {!isLoading && (
           <button
             className="bg-[#5c5470] py-2 px-4 rounded-full hover:brightness-105 mr-4"
             onClick={handleAdmin}

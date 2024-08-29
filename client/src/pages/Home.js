@@ -1,12 +1,22 @@
-// Home.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import postsData from "../misc/posts";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
+
 function Home() {
   const navigate = useNavigate();
   const [posts, setPosts] = useState(postsData);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Simulate or actually fetch data
+    setLoading(true);
+    setTimeout(() => {
+      setPosts(postsData); // Simulate fetching posts
+      setLoading(false);
+    }, 1000);
+  }, []);
 
   const addPost = (image, title, content, date) => {
     const newPost = { id: posts.length + 1, image, title, content, date };
@@ -20,6 +30,10 @@ function Home() {
   const handlePostClick = (id) => {
     navigate(`/event-details/${id}`);
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
