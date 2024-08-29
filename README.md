@@ -1,129 +1,191 @@
-# XACML and SAML Role-Based Access Control System
-
-This project implements a role-based access control system using XACML and SAML, integrated with WSO2 Server. The system consists of a client-side application built with React and a server-side application built with Node.js.
-
-## Table of Contents
-1. [Overview](#overview)
-2. [Technologies Used](#technologies-used)
-3. [Folder Structure](#folder-structure)
-4. [Installation](#installation)
-5. [Usage](#usage)
+# Hyperledger Fabric and WSO2 Identity Server Setup Guide
 
 ## Overview
 
-This project demonstrates a robust and secure role-based access control system using XACML for policy management and SAML for authentication. It is designed to manage user access rights efficiently and securely, ensuring that users only have access to the resources they are authorized to use.
+This guide provides step-by-step instructions for setting up WSO2 Identity Server (IS) version 7.0.0 and Hyperledger Fabric for integrating XACML and SAML-based authentication. Follow these steps to configure your environment and run the applications.
 
-## Technologies Used
+## 1. Installing WSO2 Identity Server
 
-- **Frontend:** React, Tailwind CSS
-- **Backend:** Node.js, Express
-- **Security & Access Control:** XACML, SAML, WSO2 Server
-- **Languages:** JavaScript
+1. **Download WSO2 IS 7.0.0**
+   - Download from [WSO2 Identity Server](https://wso2.com/identity-server/)
 
+2. **Install OpenJDK 17**
+   - Open a terminal in the `wso2is-7.0.0/bin` folder and run:
+     ```bash
+     sudo apt install openjdk-17-jdk
+     sudo update-alternatives --config java
+     echo "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> ~/.bashrc
+     echo "export PATH=$JAVA_HOME/bin:$PATH" >> ~/.bashrc
+     source ~/.bashrc
+     ```
 
-## Folder Structure
+3. **Configure WSO2 IS**
+   - Go to the `wso2is-7.0.0/repository/conf` folder and open `carbon.xml` in a text editor.
+   - Edit `<offset>0</offset>` to `<offset>4</offset>`.
+   - Go back to the `bin` folder and run:
+     ```bash
+     ./wso2server.sh -DportOffset=4
+     ```
+   - Wait for the server to start. Then, open your browser and navigate to `https://localhost:9447/console`. Log in using `admin:admin`.
 
-### Client
-```
-📁client
-├── .env
-├── .gitignore
-├── package-lock.json
-├── package.json
-├── 📁policy
-├── 📁public
-│ ├── favicon.ico
-│ ├── index.html
-│ └── manifest.json
-├── README.md
-├── 📁src
-│ ├── App.css
-│ ├── App.js
-│ ├── 📁components
-│ │ ├── AdminPanelButton.js
-│ │ ├── Button.css
-│ │ ├── Navbar.js
-│ │ ├── UserPanelButton.js
-│ ├── 📁context
-│ │ └── UserContext.js
-│ ├── 📁hooks
-│ │ ├── useAuth.js
-│ │ ├── useCheckUserAccess.js
-│ │ ├── useUserInfo.js
-│ ├── index.css
-│ ├── index.js
-│ ├── 📁pages
-│ │ ├── AdminPanel.js
-│ │ ├── Home.js
-│ │ ├── Login.js
-│ │ ├── NotAuthorized.js
-│ │ └── UserPanel.js
-├── tailwind.config.js
-```
+4. **Create a SAML-based Application**
+   - Navigate to the `Service Providers` section in the WSO2 console.
+   - Click on `Add Service Provider` and configure as follows:
+     - **Name**: DEventManagementDApp
+     - **Protocol**: SAML
+     - **Issuer**: DEventManagementDApp
+     - **ACS URL**: `https://localhost:3000/saml/consume` and `http://localhost:3000/saml/consume`
+     - **Default Assertion Consumer Service URL**: `https://localhost:3000/saml/consume`
+     - **Enable IdP Initiated SSO**: Check
+     - **Enable Attribute Profile**: Check
+     - **Logout Method**: Back Channel
+     - **Single Logout Response URL**: `https://localhost:9447/samlsso`
+     - **Single Logout Request URL**: `https://localhost:9447/samlsso`
+     - **IdP Initiated Single Logout**: Enable
+     - **Return To URLs**: Add `https://localhost:3000/app` and `https://localhost:3001`
+     - **Enable Assertion Query Profile**: Check
+   - Click `Update` to save changes.
 
-### Server
-```
-📁server
-├── .env
-├── 📁auth
-│ └── access-control.xml
-├── 📁certificate
-│ ├── server.cert
-│ ├── server.key
-├── 📁config
-│ └── saml-config.js
-├── 📁controllers
-│ ├── authController.js
-│ ├── userController.js
-├── 📁middlewares
-│ └── pdpQuery.js
-├── package-lock.json
-├── package.json
-├── 📁routes
-│ ├── authRoutes.js
-│ ├── userRoutes.js
-├── 📁security
-│ ├── convert-cert.js
-│ ├── IdPCertificate.cer
-│ ├── IdPCertificate.pem
-│ ├── server.cert
-│ ├── server.key
-├── server.js
-```
+## 2. Setting Up Hyperledger Fabric
 
+1. **Install Docker and Docker Compose**
+   - Remove old Docker versions:
+     ```bash
+     sudo apt-get remove docker docker-engine docker.io containerd runc
+     ```
+   - Update package list and install dependencies:
+     ```bash
+     sudo apt-get update
+     sudo apt-get install apt-transport-https ca-certificates gnupg-agent software-properties-common lsb-release -y
+     ```
+   - Add Docker repository and install Docker:
+     ```bash
+     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-keyring.gpg
+     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+     sudo apt-get update
+     sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+     ```
+   - Add user to Docker group:
+     ```bash
+     sudo groupadd docker
+     sudo usermod -a -G docker $USER
+     newgrp docker
+     ```
+   - Install Docker Compose:
+     ```bash
+     sudo curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+     sudo chmod +x /usr/local/bin/docker-compose
+     docker container prune
+     ```
 
-## Installation
+2. **Initialize Hyperledger Fabric**
+   - Create a directory for Hyperledger Fabric and run the bootstrap script:
+     ```bash
+     cd ../
+     mkdir fabric
+     cd fabric
+     sudo curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash -s
+     ```
 
-### Prerequisites
+3. **Clone Repository**
+   - Clone the repository into `fabric/fabric-samples`:
+     ```bash
+     git clone https://github.com/Lycanthrope8/HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp.git
+     ```
+   - Navigate to the `server` and `client` folders and install dependencies:
+     ```bash
+     cd fabric-samples/HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp
+     cd server
+     npm install
+     cd ../client
+     npm install
+     ```
 
-- Node.js
-- npm/yarn
-- WSO2 Server setup for SAML
+4. **Configure Environment Variables**
+   - Create `.env` file in the `server` folder with the following content:
+     ```env
+     SESSION_SECRET="a well secured secret"
+     SAML_ENTRYPOINT="https://localhost:9447/samlsso"
+     SAML_ISSUER="DEventManagementDApp"
+     SAML_PROTOCOL="https://"
+     SAML_LOGOUTURL="https://localhost:9447/samlsso"
+     WSO2_ROLE_CLAIM="http://wso2.org/claims/roles"
+     WSO2_EMAIL_CLAIM="http://wso2.org/claims/emailaddress"
+     WSO2_FIRSTNAME_CLAIM="http://wso2.org/claims/givenname"
+     WSO2_FULLNAME_CLAIM="http://wso2.org/claims/fullname"
+     WSO2_LASTNAME_CLAIM="http://wso2.org/claims/lastname"
+     WSO2_PHONENUMBERS_CLAIM="http://wso2.org/claims/phoneNumbers"
+     WSO2_USERNAME_CLAIM="http://wso2.org/claims/username"
+     IDP_CERTIFICATE_PATH='../security/IdPCertificate.pem'
+     PORT=3000
+     WSO2_ADMIN="admin"
+     WSO2_ADMIN_PASS="admin"
+     ```
 
-### Setup
+   - Create `.env` file in the `client` folder with the following content:
+     ```env
+     HTTPS=true
+     SSL_CRR_FILE="../server/security/server.cert"
+     SSL_KEY_FILE="../server/security/server.key"
+     ```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Lycanthrope8/SAML-Authentication-using-MERN-PassportJS-WSO2.git
-   cd SAML-Authentication-using-MERN-PassportJS-WSO2
-   ```
+5. **Generate SSL Certificates**
+   - Navigate to the `server/security` folder and run:
+     ```bash
+     openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.cert
+     ```
 
-2. **Install Dependencies**:
-   ```bash
-   npm install
+   - Download the IdP certificate from WSO2 console, rename it to `IdPCertificate.cer`, and place it in the `security` folder. Run:
+     ```bash
+     node convert-cert.js
+     ```
+     This will generate `IdPCertificate.pem`.
 
-## Usage
+6. **Deploy Hyperledger Fabric Chaincodes**
+   - Navigate to the `test-network` directory and run the following commands:
+     ```bash
+     ./network.sh down    # Stop any previous network
+     ./network.sh up createChannel  # Start network and create channel
 
-### Running the client
+     ./network.sh deployCC -ccn chaincodePAP -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pap -ccl javascript
+     ./network.sh deployCC -ccn chaincodePDP -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pdp -ccl javascript
+     ./network.sh deployCC -ccn chaincodePEP -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pep -ccl javascript
+     ./network.sh deployCC -ccn chaincodePIP -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pip -ccl javascript
+     ```
 
-1. Navigate to the `client` directory and start the React app:
-   ```
-   npm start
-   ```
+   - Set environment variables and initialize chaincodes:
+     ```bash
+     export PATH=${PWD}/../bin:$PATH
+     export FABRIC_CFG_PATH=$PWD/../config/
+     export CORE_PEER_TLS_ENABLED=true
+     export CORE_PEER_LOCALMSPID=Org1MSP
+     export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+     export CORE_PEER_ADDRESS=localhost:7051
 
-### Running the server
+     # Initialize chaincodePAP ledger
+     peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n chaincodePAP --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"initLedger","Args":[]}' 
 
-1. Navigate to the `server` directory and start the Node.js server:
-   ```
-   nodemon server.js
-   ```
+     # Initialize chaincodePIP ledger
+     peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n chaincodePIP --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"initLedger","Args":[]}'
+     ```
+
+## 3. Running the Application
+
+1. **Start the Server**
+   - Navigate to the `server` folder and run:
+     ```bash
+     node server.js
+     ```
+
+2. **Start the Client**
+   - Navigate to the `client` folder and run:
+     ```bash
+     npm start
+     ```
+
+## Conclusion
+
+You should now have WSO2 Identity Server and Hyperledger Fabric configured and running. You can access your application and start using it with SAML-based authentication and Hyperledger Fabric integration.
+
+If you encounter any issues, ensure that all steps have been followed correctly and consult the relevant documentation for troubleshooting.
