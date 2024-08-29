@@ -5,6 +5,7 @@ const fabricFunctions = require('../lib/app'); // Adjust this path as necessary
 // Endpoint for enforcing access control
 router.post('/enforce', async (req, res) => {
     try {
+        console.log("Request Body:", req.body);
         const { subject, action, resource } = req.body;
         const result = await fabricFunctions.enforceAccessControl(subject, action, resource);
         res.send(`Result: ${result}`);
