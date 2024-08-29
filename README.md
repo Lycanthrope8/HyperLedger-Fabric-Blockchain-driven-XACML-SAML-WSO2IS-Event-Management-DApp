@@ -7,9 +7,11 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
 ## 1. Installing WSO2 Identity Server
 
 1. **Download WSO2 IS 7.0.0**
+
    - Download from [WSO2 Identity Server](https://wso2.com/identity-server/)
 
 2. **Install OpenJDK 17**
+
    - Open a terminal in the `wso2is-7.0.0/bin` folder and run:
      ```bash
      sudo apt install openjdk-17-jdk
@@ -20,8 +22,9 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
      ```
 
 3. **Configure WSO2 IS**
+
    - Go to the `wso2is-7.0.0/repository/conf` folder and open `carbon.xml` in a text editor.
-   - Edit `<offset>0</offset>` to `<offset>4</offset>`.
+   - `Ctrl+f` to search for `offset` and edit `<offset>0</offset>` to `<offset>4</offset>`.
    - Go back to the `bin` folder and run:
      ```bash
      ./wso2server.sh -DportOffset=4
@@ -29,12 +32,13 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
    - Wait for the server to start. Then, open your browser and navigate to `https://localhost:9447/console`. Log in using `admin:admin`.
 
 4. **Create a SAML-based Application**
-   - Navigate to the `Service Providers` section in the WSO2 console.
-   - Click on `Add Service Provider` and configure as follows:
+   - Navigate to the `Home` section in the WSO2 console.
+   - Click on `Standard-Based Application`, choose `SAML` and configure as follows:
      - **Name**: DEventManagementDApp
      - **Protocol**: SAML
      - **Issuer**: DEventManagementDApp
      - **ACS URL**: `https://localhost:3000/saml/consume` and `http://localhost:3000/saml/consume`
+   - Click `Create` to create the app go to the `Protocol` tab and configure the rest as follows:
      - **Default Assertion Consumer Service URL**: `https://localhost:3000/saml/consume`
      - **Enable IdP Initiated SSO**: Check
      - **Enable Attribute Profile**: Check
@@ -49,6 +53,7 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
 ## 2. Setting Up Hyperledger Fabric
 
 1. **Install Docker and Docker Compose**
+
    - Remove old Docker versions:
      ```bash
      sudo apt-get remove docker docker-engine docker.io containerd runc
@@ -79,6 +84,7 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
      ```
 
 2. **Initialize Hyperledger Fabric**
+
    - Create a directory for Hyperledger Fabric and run the bootstrap script:
      ```bash
      cd ../
@@ -88,9 +94,10 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
      ```
 
 3. **Clone Repository**
+
    - Clone the repository into `fabric/fabric-samples`:
      ```bash
-     git clone https://github.com/Lycanthrope8/HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp.git
+     git clone bit.ly/xacmldapp
      ```
    - Navigate to the `server` and `client` folders and install dependencies:
      ```bash
@@ -102,7 +109,9 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
      ```
 
 4. **Configure Environment Variables**
+
    - Create `.env` file in the `server` folder with the following content:
+
      ```env
      SESSION_SECRET="a well secured secret"
      SAML_ENTRYPOINT="https://localhost:9447/samlsso"
@@ -130,7 +139,9 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
      ```
 
 5. **Generate SSL Certificates**
+
    - Navigate to the `server/security` folder and run:
+
      ```bash
      openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.cert
      ```
@@ -142,7 +153,9 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
      This will generate `IdPCertificate.pem`.
 
 6. **Deploy Hyperledger Fabric Chaincodes**
+
    - Navigate to the `test-network` directory and run the following commands:
+
      ```bash
      ./network.sh down    # Stop any previous network
      ./network.sh up createChannel  # Start network and create channel
@@ -154,6 +167,7 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
      ```
 
    - Set environment variables and initialize chaincodes:
+
      ```bash
      export PATH=${PWD}/../bin:$PATH
      export FABRIC_CFG_PATH=$PWD/../config/
@@ -164,7 +178,7 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
      export CORE_PEER_ADDRESS=localhost:7051
 
      # Initialize chaincodePAP ledger
-     peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n chaincodePAP --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"initLedger","Args":[]}' 
+     peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n chaincodePAP --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"initLedger","Args":[]}'
 
      # Initialize chaincodePIP ledger
      peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n chaincodePIP --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"initLedger","Args":[]}'
@@ -173,6 +187,7 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
 ## 3. Running the Application
 
 1. **Start the Server**
+
    - Navigate to the `server` folder and run:
      ```bash
      node server.js
@@ -186,6 +201,6 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
 
 ## Conclusion
 
-You should now have WSO2 Identity Server and Hyperledger Fabric configured and running. You can access your application and start using it with SAML-based authentication and Hyperledger Fabric integration.
+Congratulations! You should now have WSO2 Identity Server and Hyperledger Fabric configured and running. You can access your application and start using it with SAML-based authentication and Hyperledger Fabric integration. Sign yourself up using the Sign-up button and set roles from WSO2IS Identity Server.
 
-If you encounter any issues, ensure that all steps have been followed correctly and consult the relevant documentation for troubleshooting.
+Ensure that all steps have been followed thoroughly and if you still encounter any issues feel free to reach us. Thank you and Enjoy!
