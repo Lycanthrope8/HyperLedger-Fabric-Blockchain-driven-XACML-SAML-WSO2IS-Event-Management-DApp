@@ -1,6 +1,5 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import "../components/Button.css";
 
 function Login({ authenticated }) {
   if (authenticated) {

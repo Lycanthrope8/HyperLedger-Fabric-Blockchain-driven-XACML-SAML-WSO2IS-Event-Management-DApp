@@ -1,37 +1,53 @@
 // Home.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import postsData from "../misc/posts";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
-import { Link } from "react-router-dom";
 function Home() {
-  const [posts, setPosts] = useState([
-    { id: 1, content: "This is the first post" },
-    { id: 2, content: "This is the second post" },
-    // Add more posts here
-  ]);
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState(postsData);
 
-  const addPost = (content) => {
-    const newPost = { id: posts.length + 1, content };
+  const addPost = (image, title, content, date) => {
+    const newPost = { id: posts.length + 1, image, title, content, date };
     setPosts([...posts, newPost]);
   };
 
+  const handleCreateEvent = () => {
+    navigate("/create-event");
+  };
+
+  const handlePostClick = (id) => {
+    navigate(`/event-details/${id}`);
+  };
+
   return (
-    <div className="App flex flex-col h-screen bg-gradient-linear pt-16">
-      <Navbar /><br/><br/>
-      <Link to="/create-event">
-            <button className="bg-[#5c5470] py-2 px-4 rounded-full hover:brightness-105 text-zinc-50">
-              + Create Event
-            </button>
-          </Link>
-      <div className="flex flex-col flex-grow w-full p-4 overflow-y-auto">
-        
-        <div className="w-full max-w-3xl mx-auto">
+    <>
+      <div className="flex flex-col w-full h-full">
+        <Navbar />
+        <div className="w-full flex justify-end pt-4 pr-8">
+          <button
+            className="text-zinc-50 bg-[#5c5470] w-48 py-4 px-4 rounded-lg hover:brightness-105"
+            onClick={handleCreateEvent}
+          >
+            Create Event
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-4 w-full p-8 pt-4">
           {posts.map((post) => (
-            <Post key={post.id} content={post.content} />
+            <Post
+              key={post.id}
+              image={post.image}
+              title={post.title}
+              content={post.content}
+              date={post.date}
+              venue={post.venue}
+              onClick={() => handlePostClick(post.id)}
+            />
           ))}
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

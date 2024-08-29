@@ -10,14 +10,13 @@ function CreateEvent() {
   };
 
   return (
-    <div className="App flex flex-col h-screen bg-gradient-linear pt-16">
+    <>
       <Navbar />
-      <div className="flex flex-col flex-grow w-full p-4 overflow-y-auto">
-        <div className="w-full max-w-3xl mx-auto mb-8">
+      <div className="flex flex-col pt-8">
+        <div className="flex flex-col flex-grow w-full py-4 px-8">
           <PostForm onAddPost={handleAddPost} />
         </div>
-      </div>
-    </div>
+      </div></>
   );
 }
 
