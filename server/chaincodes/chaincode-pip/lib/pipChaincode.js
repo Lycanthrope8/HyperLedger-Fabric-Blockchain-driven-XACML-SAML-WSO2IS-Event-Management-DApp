@@ -64,6 +64,7 @@ class PIPChaincode extends Contract {
         console.log(`Roles updated for ${username}`);
     }
 
+    
     async getRole(ctx, username) {
         console.log(`Getting role for ${username}`);
         const attributesKey = `attribute_${username}`;
@@ -74,6 +75,67 @@ class PIPChaincode extends Contract {
         }
         return roleData.toString(); // Should return JSON object format
     }
+
+    async checkUserExists(ctx, username) {
+        console.log(`Checking and updating role for user: ${username}`);
+        const attributesKey = `attribute_${username}`;
+        const userData = await ctx.stub.getState(attributesKey);
+
+        if (!!userData && userData.length > 0) {
+            console.log('User already exists in ledger.');
+            return 'User already exists, no role added.';
+        } else {
+            // Since the user doesn't exist, add a default "user" role
+            console.log('User does not exist. Adding default "user" role...');
+            const roleData = { role: ['user'] };
+            await ctx.stub.putState(attributesKey, Buffer.from(JSON.stringify(roleData)));
+            console.log(`Default role added for ${username}`);
+            return 'User did not exist; default "user" role added.';
+        }
+    }
+
+    async getAllUsers(ctx) {
+        const startKey = 'attribute_';
+        const endKey = 'attribute_~'; // '~' is used to cover all possible subsequent characters
+        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+        const allUsers = [];
+    
+        let result = await iterator.next();
+        while (!result.done) {
+            const user = JSON.parse(result.value.value.toString());
+            const username = result.value.key.split('_')[1];
+            allUsers.push({ username, role: user.role });
+            result = await iterator.next();
+        }
+        await iterator.close();
+    
+        console.log('All users retrieved from the ledger.');
+        return JSON.stringify(allUsers);
+    }
+    
+    async getUsersByRole(ctx, roleToFind) {
+        const startKey = 'attribute_';
+        const endKey = 'attribute_~';
+        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+        const filteredUsers = [];
+    
+        let result = await iterator.next();
+        while (!result.done) {
+            const user = JSON.parse(result.value.value.toString());
+            const username = result.value.key.split('_')[1];
+            if (user.role.includes(roleToFind)) {
+                filteredUsers.push({ username, role: user.role });
+            }
+            result = await iterator.next();
+        }
+        await iterator.close();
+    
+        console.log(`All users with role ${roleToFind} retrieved from the ledger.`);
+        return JSON.stringify(filteredUsers);
+    }
+
+    
+
 }
 
 module.exports = PIPChaincode;

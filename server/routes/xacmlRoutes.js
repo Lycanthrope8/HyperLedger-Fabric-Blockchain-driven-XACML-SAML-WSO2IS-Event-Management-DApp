@@ -77,4 +77,37 @@ router.get('/getAllPolicies', async (req, res) => {
     }
 });
 
+// Endpoint for getting all users
+router.get('/getAllUsers', async (req, res) => {
+    try {
+        const result = await fabricFunctions.getAllUsers();
+        res.send(`All Users: ${result}`);
+    } catch (error) {
+        res.status(500).send("Error processing request: " + error.message);
+    }
+});
+
+// Endpoint for getting users by role
+router.post('/getUsersByRole', async (req, res) => {
+    try {
+        const { role } = req.body;
+        const result = await fabricFunctions.getUsersByRole(role);
+        res.send(`Users with role ${role}: ${result}`);
+    } catch (error) {
+        res.status(500).send("Error processing request: " + error.message);
+    }
+});
+
+// Endpoint for checking if a user exists and adding default role if not
+router.post('/checkUserExists', async (req, res) => {
+    try {
+        const { username } = req.body;
+        const result = await fabricFunctions.checkUserExists(username);
+        res.send(`Check Result: ${result}`);
+    } catch (error) {
+        res.status(500).send("Error processing request: " + error.message);
+    }
+});
+
+
 module.exports = router;

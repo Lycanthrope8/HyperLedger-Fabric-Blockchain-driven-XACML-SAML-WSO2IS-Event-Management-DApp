@@ -221,8 +221,59 @@ async function getAllPolicies() {
         client.close();
     }
 }
+async function getAllUsers() {
+    const client = await newGrpcConnection();
+    const gateway = connect({
+        client,
+        identity: await newIdentity(),
+        signer: await newSigner(),
+    });
+    try {
+        const contract = await getContractInstance(gateway, channelName, 'chaincodePIP');
+        const result = await contract.evaluateTransaction('getAllUsers');
+        return utf8Decoder.decode(result);
+    } finally {
+        gateway.close();
+        client.close();
+    }
+}
 
-// Exporting functions for use in server.js
+async function getUsersByRole(role) {
+    const client = await newGrpcConnection();
+    const gateway = connect({
+        client,
+        identity: await newIdentity(),
+        signer: await newSigner(),
+    });
+    try {
+        const contract = await getContractInstance(gateway, channelName, 'chaincodePIP');
+        const result = await contract.evaluateTransaction('getUsersByRole', role);
+        return utf8Decoder.decode(result);
+    } finally {
+        gateway.close();
+        client.close();
+    }
+}
+
+async function checkUserExists(username) {
+    const client = await newGrpcConnection();
+    const gateway = connect({
+        client,
+        identity: await newIdentity(),
+        signer: await newSigner(),
+    });
+    try {
+        const contract = await getContractInstance(gateway, channelName, 'chaincodePIP');
+        const result = await contract.submitTransaction('checkUserExists', username);
+        return utf8Decoder.decode(result);
+    } finally {
+        gateway.close();
+        client.close();
+    }
+}
+
+
+
 module.exports = {
     enforceAccessControl,
     evaluatePolicy,
@@ -230,5 +281,8 @@ module.exports = {
     getRole,
     addPolicy,
     getPolicy,
-    getAllPolicies
+    getAllPolicies,
+    getAllUsers,      
+    getUsersByRole,
+    checkUserExists,    
 };
