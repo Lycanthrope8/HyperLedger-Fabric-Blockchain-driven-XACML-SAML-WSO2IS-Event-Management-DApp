@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 import postsData from "../misc/posts";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
+import { useUser } from '../contexts/UserContext';  // Ensure the path is correct
 
 function Home() {
   const navigate = useNavigate();
   const [posts, setPosts] = useState(postsData);
   const [loading, setLoading] = useState(false);
+  const { userProfile } = useUser();  
 
   useEffect(() => {
-    // Simulate or actually fetch data
     setLoading(true);
     setTimeout(() => {
       setPosts(postsData); // Simulate fetching posts

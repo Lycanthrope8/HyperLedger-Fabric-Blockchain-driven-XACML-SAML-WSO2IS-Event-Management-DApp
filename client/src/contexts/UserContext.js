@@ -36,17 +36,21 @@ export const UserProvider = ({ children }) => {
   // Function to fetch user profile from your server
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch('https://localhost:3000/user-profile'); // Modify with your actual endpoint
-      if (response.ok) {
+        const response = await fetch('https://localhost:3000/user-profile', {
+            method: 'GET',
+            credentials: 'include'  // Necessary for cookies to be sent and received
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP status ${response.status}`);
+        }
         const data = await response.json();
         setUserProfile(data);
-      } else {
-        console.error("Failed to fetch: HTTP status " + response.status);
-      }
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
+        console.error("Failed to fetch user profile:", error.message);
     }
-  };
+};
+
+  
 
   // Fetch user profile once when the component mounts
   useEffect(() => {
