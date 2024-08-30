@@ -9,6 +9,7 @@ passport.use(new SamlStrategy(samlConfig, (profile, done) => {
     done(null, userProfile);
 }));
 
+
 // Serialize User
 passport.serializeUser((user, done) => {
     done(null, user);

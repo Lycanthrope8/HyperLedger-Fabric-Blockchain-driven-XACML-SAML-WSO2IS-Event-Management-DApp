@@ -7,7 +7,8 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes');
-const xacmlRoutes = require('./routes/xacmlRoutes'); // Add this line
+const xacmlRoutes = require('./routes/xacmlRoutes'); 
+const userRoutes = require('./routes/userRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -34,6 +35,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', authRoutes);
+app.use('/', userRoutes);
 app.use('/xacml', xacmlRoutes); // Use XACML routes
 
 const httpsOptions = {

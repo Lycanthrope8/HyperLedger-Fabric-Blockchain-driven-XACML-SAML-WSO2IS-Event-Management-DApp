@@ -1,18 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthorization from '../hooks/useAuthorization';
+import { useUser } from '../contexts/UserContext';
 
 function Navbar() {
   const navigate = useNavigate();
-
+  const { userProfile, setUserProfile } = useUser();
   const { isAuthorized, loading, error } = useAuthorization('alice.smith', 'write', 'adminPanel');
 
-  // Consider keeping the loading state until authorization is confirmed
+  useEffect(() => {
+    console.log('User profile:', userProfile);
+    // You might want to perform other checks or initializations here based on the userProfile
+
+    if (isAuthorized) {
+      console.log('User is authorized for admin panel');
+    } else {
+      console.log('User is not authorized for admin panel');
+    }
+
+  }, [userProfile, isAuthorized]); // Re-run this effect when userProfile or isAuthorized changes
+
   const isLoading = loading || !isAuthorized;
 
   const handleLogout = () => {
     console.log('Logging out...');
-    navigate('/app/logout');
+    window.location.href = 'https://localhost:3000/app/logout';
   };
 
   const handleAdmin = () => {

@@ -69,12 +69,18 @@ class PIPChaincode extends Contract {
         console.log(`Getting role for ${username}`);
         const attributesKey = `attribute_${username}`;
         const roleData = await ctx.stub.getState(attributesKey);
-
+    
         if (!roleData || roleData.length === 0) {
-            return '{}'; // Return an empty object in string format if no roles are found
+            // User does not exist, assign a default "user" role
+            console.log(`User ${username} does not exist. Assigning default "user" role.`);
+            const defaultRoleData = { role: ['user'] };
+            await ctx.stub.putState(attributesKey, Buffer.from(JSON.stringify(defaultRoleData)));
+            return JSON.stringify(defaultRoleData);
         }
-        return roleData.toString(); // Should return JSON object format
+        
+        return roleData.toString(); // Return the existing roles if found
     }
+    
 
     async checkUserExists(ctx, username) {
         console.log(`Checking and updating role for user: ${username}`);
