@@ -7,7 +7,7 @@ const eventSchema = new Schema({
         type: String,
         required: true,
         trim: true,
-        required: true //comment
+        required: true
     },
     image: {
         type: String,
