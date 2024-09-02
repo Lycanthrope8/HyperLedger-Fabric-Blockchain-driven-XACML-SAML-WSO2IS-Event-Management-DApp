@@ -6,7 +6,7 @@ import { useUser } from '../contexts/UserContext';
 function Navbar() {
   const navigate = useNavigate();
   const { userProfile } = useUser();
-
+  const url = "https://localhost:3001";
   const username = userProfile.username;
   const { isAuthorized, loading, error } = useAuthorization(username, 'write', 'adminPanel');
 
@@ -14,7 +14,7 @@ function Navbar() {
 
   const handleLogout = () => {
     console.log('Logging out...');
-    window.location.href = 'https://localhost:3000/app/logout';
+    window.location.href = `https://localhost:9447/samlsso?slo=true&spEntityID=DEventManagementDApp&returnTo=${url}`;
   };
 
   const handleAdmin = () => {

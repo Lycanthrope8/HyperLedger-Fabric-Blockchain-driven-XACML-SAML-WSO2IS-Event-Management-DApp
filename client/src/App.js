@@ -9,9 +9,10 @@ import CreateEvent from "./pages/CreateEvent";
 import EventDetails from "./pages/EventDetails";
 import { useUser } from "./contexts/UserContext";
 import useAuthorization from "./hooks/useAuthorization";
-
+import { bouncy } from "ldrs";
 
 function App() {
+  bouncy.register();
   const { authenticated, loading: authLoading } = useAuth();
   const { userProfile } = useUser();
   const username = userProfile.username;
@@ -19,7 +20,12 @@ function App() {
 
   // Combine loading states and check if there's an error (optional)
   if (authLoading || authzLoading) {
-    return <div>Loading...</div>;
+    return <div className="h-screen w-screen flex justify-center items-center">
+      <l-bouncy
+        size="45"
+        speed="1.75"
+        color="white"
+      ></l-bouncy></div>;
   }
 
   if (error) {

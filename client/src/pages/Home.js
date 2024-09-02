@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import postsData from "../misc/posts";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
-import { useUser } from '../contexts/UserContext';  // Ensure the path is correct
+import { useUser } from '../contexts/UserContext';
+import 'ldrs/bouncy'
 
 function Home() {
   const navigate = useNavigate();
   const [posts, setPosts] = useState(postsData);
   const [loading, setLoading] = useState(false);
-  const { userProfile } = useUser();  
+  const { userProfile } = useUser();
 
   useEffect(() => {
     setLoading(true);
@@ -32,9 +33,15 @@ function Home() {
     navigate(`/event-details/${id}`);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div className="w-max h-max flex justify-center items-center">
+  //     <l-bouncy
+  //       size="45"
+  //       speed="1.75"
+  //       color="black"
+  //     ></l-bouncy>
+  //   </div>;
+  // }
 
   return (
     <>

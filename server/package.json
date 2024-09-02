@@ -18,7 +18,8 @@
     "node-fetch": "^2.7.0",
     "passport": "^0.7.0",
     "passport-saml": "^3.2.4",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "uuid": "^10.0.0"
   },
   "name": "server",
   "version": "1.0.0",

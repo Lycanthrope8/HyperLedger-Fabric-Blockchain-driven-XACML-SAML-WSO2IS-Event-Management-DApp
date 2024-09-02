@@ -10,7 +10,7 @@ const redirectToLogin = (req, res, next) => {
 };
 
 const handleLogin = passport.authenticate('saml', {
-    successRedirect: 'https://localhost:3001/',   
+    successRedirect: 'https://localhost:3001/',
     failureRedirect: '/app/failed',
     failureFlash: true
 });
@@ -29,7 +29,7 @@ const handleSamlConsumeRedirect = (req, res) => {
         const xmlString = Buffer.from(base64String, 'base64').toString('utf-8');
         // console.log('SAML XML Response:', xmlString);   
     }
-    return res.redirect('https://localhost:3001/');  
+    return res.redirect('https://localhost:3001/');
 };
 
 const handleLogout = (req, res) => {
@@ -43,7 +43,7 @@ const handleLogout = (req, res) => {
             return res.status(500).send('Error during logout');
         }
 
-        return res.redirect('https://localhost:9447/samlsso');  
+        return res.redirect('https://localhost:9447/samlsso');
     });
 };
 
