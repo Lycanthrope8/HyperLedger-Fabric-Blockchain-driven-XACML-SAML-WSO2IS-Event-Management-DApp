@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const Event = require('../models/eventModel');
 
 const getEvents = async (req, res) => {
@@ -11,7 +13,7 @@ const getEvents = async (req, res) => {
 
 const getEventById = async (req, res) => {
     try {
-        const event = await Event.findOne({ eventId: req.params.id });
+        const event = await Event.findById(req.params.id);
         if (!event) {
             return res.status(404).send('Event not found');
         }
@@ -22,10 +24,19 @@ const getEventById = async (req, res) => {
 };
 
 const createEvent = async (req, res) => {
-    const { organizer, image, title, description, date, location } = req.body;
+    const { organizer, title, description, date, location } = req.body;
+    const image = {};
+    console.log(req.file);
+    if (req.file) {
+        const filePath = path.join(__dirname, '..', 'uploads', req.file.filename);
+        image.data = fs.readFileSync(filePath);
+        image.contentType = req.file.mimetype;
+    } else {
+        return res.status(400).send('Image is required');
+    }
 
     try {
-        const event = await Event.create({
+        const event = new Event({
             organizer,
             image,
             title,
@@ -33,30 +44,26 @@ const createEvent = async (req, res) => {
             date,
             location
         });
-        res.status(201).json({
-            message: 'Event created successfully!',
-            eventId: event.eventId,
-            eventDetails: event
-        });
+        await event.save();
+        res.status(201).json(event);
     } catch (error) {
         res.status(400).send('Error creating event: ' + error.message);
     }
 };
 
 const updateEvent = async (req, res) => {
-    const { id } = req.params;
-    const { organizer, image, title, description, date, location } = req.body;
+    const { organizer, title, description, date, location } = req.body;
+    const update = { organizer, title, description, date, location };
+
+    if (req.file) {
+        update.image = {
+            data: req.file.buffer,
+            contentType: req.file.mimetype
+        };
+    }
 
     try {
-        const event = await Event.findOneAndUpdate({ eventId: id }, {
-            organizer,
-            image,
-            title,
-            description,
-            date,
-            location
-        }, { new: true });
-
+        const event = await Event.findByIdAndUpdate(req.params.id, update, { new: true });
         if (!event) {
             return res.status(404).send('Event not found');
         }
@@ -68,7 +75,7 @@ const updateEvent = async (req, res) => {
 
 const deleteEvent = async (req, res) => {
     try {
-        const event = await Event.findOneAndDelete({ eventId: req.params.id });
+        const event = await Event.findByIdAndDelete(req.params.id);
         if (!event) {
             return res.status(404).send('Event not found');
         }

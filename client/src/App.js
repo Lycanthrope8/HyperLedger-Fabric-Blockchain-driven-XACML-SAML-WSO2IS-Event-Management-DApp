@@ -41,7 +41,7 @@ function App() {
         <Route path="/admin"
           element={authenticated ? (isAuthorized ? <AdminPage /> : <Navigate to="/not-authorized" />) : <Navigate to="/" />}
         />
-        <Route path="/create-event"
+        <Route path="/eventcreate"
           element={authenticated ? (isAuthorized ? <CreateEvent /> : <Navigate to="/not-authorized" />) : <Navigate to="/" />}
         />
         <Route path="/event-details/:eventId"

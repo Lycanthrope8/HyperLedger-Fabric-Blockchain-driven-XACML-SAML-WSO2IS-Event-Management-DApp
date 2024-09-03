@@ -26,22 +26,12 @@ function Home() {
   };
 
   const handleCreateEvent = () => {
-    navigate("/create-event");
+    navigate("/eventcreate");
   };
 
   const handlePostClick = (id) => {
     navigate(`/event-details/${id}`);
   };
-
-  // if (loading) {
-  //   return <div className="w-max h-max flex justify-center items-center">
-  //     <l-bouncy
-  //       size="45"
-  //       speed="1.75"
-  //       color="black"
-  //     ></l-bouncy>
-  //   </div>;
-  // }
 
   return (
     <>

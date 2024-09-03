@@ -16,7 +16,7 @@ const handleLogin = passport.authenticate('saml', {
 });
 
 const handleSamlConsume = (req, res, next) => {
-    // console.log('SAML Response Body:', req.body);   
+    // console.log('SAML Response Body:', req.body);
     passport.authenticate('saml', {
         failureRedirect: '/app/failed',
         failureFlash: true

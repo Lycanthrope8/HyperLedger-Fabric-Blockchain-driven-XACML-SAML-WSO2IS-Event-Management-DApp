@@ -1,22 +1,17 @@
-
 const express = require('express');
-const Event = require('../models/eventModel');
 const { createEvent, getEvents, getEventById, updateEvent, deleteEvent } = require('../controllers/eventController');
+const uploadMiddleware = require('../middleware/multerMiddleware');
+
 const router = express.Router();
 
 router.get('/user-profile', (req, res) => {
     res.json(req.user);
 });
 
-router.get('/events', async (req, res) => {
-    const events = await Event.find({});
-    res.json(events);
-});
-
-router.post('/create-event', createEvent);
 router.get('/events', getEvents);
-router.get('/event/:id', getEventById);
-router.put('/update-event/:id', updateEvent);
-router.delete('/delete-event/:id', deleteEvent);
+router.post('/events', uploadMiddleware, createEvent);
+router.get('/events/:id', getEventById);
+router.put('/events/:id', uploadMiddleware, updateEvent);
+router.delete('/events/:id', deleteEvent);
 
 module.exports = router;

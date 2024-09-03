@@ -6,15 +6,16 @@ import { useUser } from '../contexts/UserContext';
 function Navbar() {
   const navigate = useNavigate();
   const { userProfile } = useUser();
-  const url = "https://localhost:3001";
   const username = userProfile.username;
+  console.log('Username:', username);
   const { isAuthorized, loading, error } = useAuthorization(username, 'write', 'adminPanel');
 
   const isLoading = loading || !isAuthorized;
 
   const handleLogout = () => {
     console.log('Logging out...');
-    window.location.href = `https://localhost:9447/samlsso?slo=true&spEntityID=DEventManagementDApp&returnTo=${url}`;
+    // window.location.href = `https://localhost:9447/samlsso?slo=true&spEntityID=localhost&returnTo=${url}`;
+    window.location.href = "https://localhost:9447/samlsso";
   };
 
   const handleAdmin = () => {
@@ -31,7 +32,6 @@ function Navbar() {
       <h1 className="text-2xl font-bold">SAML x MERN</h1>
       <div>
         {error && <div className="text-red-500">Error: {error.message || 'Server error'}</div>}
-        {/* {isLoading && <div>Loading...</div>} */}
         {!isLoading && (
           <button
             className="bg-[#5c5470] py-2 px-4 rounded-full hover:brightness-105 mr-4"
