@@ -7,7 +7,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes');
-const xacmlRoutes = require('./routes/xacmlRoutes'); 
+const xacmlRoutes = require('./routes/xacmlRoutes');
 const userRoutes = require('./routes/userRoutes');
 require('dotenv').config();
 
@@ -24,6 +24,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
+app.use(express.static(path.join(__dirname, 'uploads')));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

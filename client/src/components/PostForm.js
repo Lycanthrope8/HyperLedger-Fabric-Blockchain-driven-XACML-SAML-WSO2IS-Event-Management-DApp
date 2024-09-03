@@ -31,12 +31,6 @@ function PostForm({ onAddPost }) {
       formData.append("location", location);
       formData.append("image", files[0]);
 
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
-
-
-
       try {
         const response = await axios.post("https://localhost:3000/events", formData, {
           headers: {

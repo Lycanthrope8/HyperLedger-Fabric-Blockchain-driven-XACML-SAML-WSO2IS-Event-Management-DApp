@@ -1,42 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import postsData from "../misc/posts";
+import axios from 'axios';
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
 import { useUser } from '../contexts/UserContext';
-import 'ldrs/bouncy'
 
 function Home() {
   const navigate = useNavigate();
-  const [posts, setPosts] = useState(postsData);
-  const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { userProfile } = useUser();
 
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setPosts(postsData); // Simulate fetching posts
-      setLoading(false);
-    }, 1000);
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('https://localhost:3000/events');
+        setPosts(response.data);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
   }, []);
 
-  const addPost = (image, title, content, date) => {
-    const newPost = { id: posts.length + 1, image, title, content, date };
-    setPosts([...posts, newPost]);
-  };
+  // console.log(posts.map(post => `https://localhost:3000/${post.image.path.slice(30)}`));
 
   const handleCreateEvent = () => {
     navigate("/eventcreate");
   };
 
   const handlePostClick = (id) => {
-    navigate(`/event-details/${id}`);
+    navigate(`/events/${id}`);
   };
 
   return (
     <>
+      <Navbar />
       <div className="flex flex-col w-full h-full">
-        <Navbar />
         <div className="w-full flex justify-end pt-4 pr-8">
           <button
             className="text-zinc-50 bg-[#5c5470] w-48 py-4 px-4 rounded-lg hover:brightness-105"
@@ -45,19 +48,23 @@ function Home() {
             Create Event
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-4 w-full p-8 pt-4">
-          {posts.map((post) => (
-            <Post
-              key={post.id}
-              image={post.image}
-              title={post.title}
-              content={post.content}
-              date={post.date}
-              venue={post.venue}
-              onClick={() => handlePostClick(post.id)}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center h-full">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-3 gap-4 w-full p-8 pt-4">
+            {posts.map((post) => (
+              <Post
+                key={post._id}
+                image={`https://localhost:3000/${post.image.path.slice(30)}`}
+                title={post.title}
+                content={post.description}
+                date={new Date(post.date).toLocaleDateString()}
+                venue={post.location}
+                onClick={() => handlePostClick(post._id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import postsData from "../misc/posts";
+import axios from 'axios';
 import { TbStar, TbStarFilled } from "react-icons/tb";
 import { PiShareFatBold, PiShareFatFill } from "react-icons/pi";
 import { IoTicketSharp } from "react-icons/io5";
@@ -9,9 +9,20 @@ import { FaCalendarDays, FaLocationDot } from "react-icons/fa6";
 function EventDetails() {
   const [interested, setInterested] = useState(false);
   const [going, setGoing] = useState(false);
+  const [post, setPost] = useState(null);
 
-  const { eventId } = useParams();
-  const post = postsData.find((post) => post.id === parseInt(eventId));
+  const { id } = useParams();
+
+  useEffect(() => {
+    const fetchEventDetails = async () => {
+      const response = await axios.get(`https://localhost:3000/events/${id}`);
+      setPost(response.data);
+    };
+
+    fetchEventDetails();
+  }, [id]);
+
+  // console.log("https://localhost:3000" + post.image.slice(7));
 
   if (!post) {
     return (
@@ -38,7 +49,7 @@ function EventDetails() {
       <div className="flex flex-col items-center justify-center w-full p-8">
         <div className="relative w-1/2 h-auto">
           <img
-            src={post.image}
+            src={`https://localhost:3000/${post.image.slice(7)}`}
             alt={post.title}
             className="w-full h-auto object-cover rounded-lg shadow-md"
           />
@@ -79,15 +90,15 @@ function EventDetails() {
             Buy a Ticket
           </button>
         </div>
-        <div className="w-full ">
-          <h1 className="text-xl text-zinc-50 mt-4">{post.content}</h1>
+        <div className="w-full">
+          <h1 className="text-xl text-zinc-50 mt-4">{post.description}</h1>
           <h1 className="flex items-center gap-2 text-lg text-zinc-50">
             <FaCalendarDays className="text-xl" />
-            {post.date}
+            {new Date(post.date).toLocaleDateString()}
           </h1>
           <h1 className="flex items-center gap-2 text-lg text-zinc-50">
             <FaLocationDot className="text-xl" />
-            {post.venue}
+            {post.location}
           </h1>
         </div>
       </div>

@@ -4,14 +4,33 @@ const Event = require('../models/eventModel');
 
 const getEvents = async (req, res) => {
     try {
+        // Fetch all events from the database
         const events = await Event.find({});
-        res.json(events);
+
+        // Map over the events to format the response
+        const formattedEvents = events.map(event => ({
+            _id: event._id,
+            organizer: event.organizer,
+            title: event.title,
+            description: event.description,
+            date: event.date,
+            location: event.location,
+            // Construct the full image path if an image exists, and include the actual MIME type
+            image: event.image ? {
+                path: `${req.protocol}://${req.get('host')}/${event.image}`,
+                contentType: event.contentType || 'application/octet-stream' // Fallback if MIME type is unknown
+            } : null
+        }));
+
+        res.json(formattedEvents);
     } catch (error) {
+        console.error('Failed to retrieve events:', error);
         res.status(500).send('Error retrieving events: ' + error.message);
     }
 };
 
-const getEventById = async (req, res) => {
+const getEventById = async (req, res, ) => {
+    console.log(req.params.id);
     try {
         const event = await Event.findById(req.params.id);
         if (!event) {
@@ -25,20 +44,18 @@ const getEventById = async (req, res) => {
 
 const createEvent = async (req, res) => {
     const { organizer, title, description, date, location } = req.body;
-    const image = {};
     console.log(req.file);
-    if (req.file) {
-        const filePath = path.join(__dirname, '..', 'uploads', req.file.filename);
-        image.data = fs.readFileSync(filePath);
-        image.contentType = req.file.mimetype;
-    } else {
+
+    const imagePath = req.file ? req.file.path : null;
+
+    if (!imagePath) {
         return res.status(400).send('Image is required');
     }
 
     try {
         const event = new Event({
             organizer,
-            image,
+            image: imagePath,  // Store only the path
             title,
             description,
             date,
@@ -51,15 +68,13 @@ const createEvent = async (req, res) => {
     }
 };
 
+
 const updateEvent = async (req, res) => {
     const { organizer, title, description, date, location } = req.body;
     const update = { organizer, title, description, date, location };
 
     if (req.file) {
-        update.image = {
-            data: req.file.buffer,
-            contentType: req.file.mimetype
-        };
+        update.image = req.file.path;
     }
 
     try {

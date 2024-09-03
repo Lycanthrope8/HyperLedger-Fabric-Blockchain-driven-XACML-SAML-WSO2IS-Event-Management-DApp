@@ -9,15 +9,9 @@ const eventSchema = new Schema({
         trim: true
     },
     image: {
-        data: {
-            type: Buffer,
-            required: true
-        },
-        contentType: {
-            type: String,
-            required: true,
-            trim: true
-        }
+        type: String,
+        required: true,
+        trim: true
     },
     title: {
         type: String,
