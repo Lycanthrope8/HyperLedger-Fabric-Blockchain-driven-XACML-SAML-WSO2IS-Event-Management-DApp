@@ -1,0 +1,3 @@
+1. Randomly Admin and Create Event button doesn't work anymore and takes the user to the endpoint  /not-authorized.
+
+2. Trying to access either of these two just after the first loading of the site also does the same.
