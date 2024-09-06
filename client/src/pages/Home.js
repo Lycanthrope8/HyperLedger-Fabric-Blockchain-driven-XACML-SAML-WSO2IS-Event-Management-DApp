@@ -26,7 +26,7 @@ function Home() {
     fetchEvents();
   }, []);
 
-  // console.log(posts.map(post => `https://localhost:3000/${post.image.path.slice(30)}`));
+  console.log(posts[0]);
 
   const handleCreateEvent = () => {
     navigate("/eventcreate");
@@ -34,6 +34,30 @@ function Home() {
 
   const handlePostClick = (id) => {
     navigate(`/events/${id}`);
+  };
+
+  const handleUpvote = async (postId) => {
+    try {
+      await axios.post(`https://localhost:3000/events/${postId}/upvote`);
+      const updatedPosts = posts.map(post =>
+        post._id === postId ? { ...post, upvotes: (post.upvotes || 0) + 1 } : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      console.error('Failed to upvote:', error);
+    }
+  };
+
+  const handleDownvote = async (postId) => {
+    try {
+      await axios.post(`https://localhost:3000/events/${postId}/downvote`);
+      const updatedPosts = posts.map(post =>
+        post._id === postId ? { ...post, downvotes: (post.downvotes || 0) + 1 } : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      console.error('Failed to downvote:', error);
+    }
   };
 
   return (
@@ -60,6 +84,10 @@ function Home() {
                 content={post.description}
                 date={new Date(post.date).toLocaleDateString()}
                 venue={post.location}
+                upvotes={post.upvotes}
+                downvotes={post.downvotes}
+                onUpvote={() => handleUpvote(post._id)}
+                onDownvote={() => handleDownvote(post._id)}
                 onClick={() => handlePostClick(post._id)}
               />
             ))}

@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import { useDropzone } from "react-dropzone";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useUser } from '../contexts/UserContext';
+import { useDropzone } from "react-dropzone";
+
 
 function PostForm({ onAddPost }) {
+  const { userProfile } = useUser();
   const [text, setText] = useState("");
   const [date, setDate] = useState("");
   const [eventName, setEventName] = useState("");
@@ -19,6 +22,9 @@ function PostForm({ onAddPost }) {
     }
   });
 
+  useEffect(() => {
+    setOrganizer(userProfile.username);
+  }, [userProfile]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,7 +79,7 @@ function PostForm({ onAddPost }) {
         </div>
 
         <div>
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label className="block text-zinc-50 mb-1">Organizer:</label>
             <input
               type="text"
@@ -82,7 +88,7 @@ function PostForm({ onAddPost }) {
               className="w-full p-2 rounded border border-zinc-600 bg-[#3b3a3a] text-zinc-50"
               required
             />
-          </div>
+          </div> */}
           <div className="mb-4">
             <label className="block text-zinc-50 mb-1">Event Name:</label>
             <input

@@ -19,7 +19,9 @@ function App() {
   const { isAuthorized, loading: authzLoading, error } = useAuthorization(username, 'write', 'adminPanel');
 
   // Combine loading states and check if there's an error (optional)
-  if (authLoading || authzLoading) {
+  // if (authLoading || authzLoading) {
+  if (isAuthorized === (false || null) || authLoading || authzLoading) {
+    // console.log(isAuthorized);
     return <div className="h-screen w-screen flex justify-center items-center">
       <l-bouncy
         size="45"

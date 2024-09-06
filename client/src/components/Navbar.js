@@ -12,6 +12,8 @@ function Navbar() {
 
   const isLoading = loading || !isAuthorized;
 
+  // console.log('Is authorized:', isAuthorized);
+
   const handleLogout = () => {
     console.log('Logging out...');
     // window.location.href = `https://localhost:9447/samlsso?slo=true&spEntityID=localhost&returnTo=${url}`;
@@ -32,7 +34,7 @@ function Navbar() {
       <h1 className="text-2xl font-bold">SAML x MERN</h1>
       <div>
         {error && <div className="text-red-500">Error: {error.message || 'Server error'}</div>}
-        {!isLoading && (
+        {isAuthorized && (
           <button
             className="bg-[#5c5470] py-2 px-4 rounded-full hover:brightness-105 mr-4"
             onClick={handleAdmin}

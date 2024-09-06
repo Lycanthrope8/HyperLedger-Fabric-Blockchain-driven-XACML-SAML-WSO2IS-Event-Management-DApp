@@ -9,6 +9,7 @@ const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const xacmlRoutes = require('./routes/xacmlRoutes');
 const userRoutes = require('./routes/userRoutes');
+const eventRoutes = require('./routes/eventRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -39,6 +40,7 @@ app.use(passport.session());
 
 app.use('/', authRoutes);
 app.use('/', userRoutes);
+app.use('/', eventRoutes);
 app.use('/xacml', xacmlRoutes); // Use XACML routes
 
 // MONGOOSE CONNECTION

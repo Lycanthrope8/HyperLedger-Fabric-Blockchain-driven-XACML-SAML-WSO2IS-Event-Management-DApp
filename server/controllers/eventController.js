@@ -19,7 +19,11 @@ const getEvents = async (req, res) => {
             image: event.image ? {
                 path: `${req.protocol}://${req.get('host')}/${event.image}`,
                 contentType: event.contentType || 'application/octet-stream' // Fallback if MIME type is unknown
-            } : null
+            } : null,
+            upvotes: event.upvotes,
+            downvotes: event.downvotes,
+            interested: event.interested,
+            going: event.going
         }));
 
         res.json(formattedEvents);
@@ -29,8 +33,7 @@ const getEvents = async (req, res) => {
     }
 };
 
-const getEventById = async (req, res, ) => {
-    console.log(req.params.id);
+const getEventById = async (req, res,) => {
     try {
         const event = await Event.findById(req.params.id);
         if (!event) {
@@ -100,10 +103,40 @@ const deleteEvent = async (req, res) => {
     }
 };
 
+const upvoteEvent = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) {
+            return res.status(404).send('Event not found');
+        }
+        event.upvotes++;
+        await event.save();
+        res.json(event);
+    } catch (error) {
+        res.status(500).send('Error upvoting event: ' + error.message);
+    }
+};
+
+const downvoteEvent = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) {
+            return res.status(404).send('Event not found');
+        }
+        event.downvotes++;
+        await event.save();
+        res.json(event);
+    } catch (error) {
+        res.status(500).send('Error downvoting event: ' + error.message);
+    }
+};
+
 module.exports = {
     getEvents,
     getEventById,
     createEvent,
     updateEvent,
-    deleteEvent
+    deleteEvent,
+    upvoteEvent,
+    downvoteEvent
 };

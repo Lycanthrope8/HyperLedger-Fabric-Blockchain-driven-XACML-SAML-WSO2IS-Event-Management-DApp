@@ -31,6 +31,22 @@ const eventSchema = new Schema({
         type: String,
         required: true,
         trim: true
+    },
+    upvotes: {
+        type: Number,
+        default: 0
+    },
+    downvotes: {
+        type: Number,
+        default: 0
+    },
+    interested: {
+        type: [String],
+        default: []
+    },
+    going: {
+        type: [String],
+        default: []
     }
 }, { timestamps: true });
 
