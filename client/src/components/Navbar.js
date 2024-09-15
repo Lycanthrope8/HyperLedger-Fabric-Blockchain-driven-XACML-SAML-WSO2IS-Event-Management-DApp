@@ -31,19 +31,19 @@ function Navbar() {
 
   return (
     <nav className="w-full text-zinc-50 bg-[#2a2438] h-max py-2 px-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">SAML x MERN</h1>
+      <h1 onClick={() => navigate("/")} className="text-2xl font-bold cursor-pointer">SAML x MERN</h1>
       <div>
         {error && <div className="text-red-500">Error: {error.message || 'Server error'}</div>}
         {isAuthorized && (
           <button
-            className="bg-[#5c5470] py-2 px-4 rounded-full hover:brightness-105 mr-4"
+            className="bg-[#5c5470] py-2 px-4 rounded  hover:brightness-110 transition-all mr-4"
             onClick={handleAdmin}
           >
             Admin
           </button>
         )}
         <button
-          className="bg-[#5c5470] py-2 px-4 rounded-full hover:brightness-105"
+          className="bg-[#5c5470] py-2 px-4 rounded  hover:brightness-110 transition-all"
           onClick={handleLogout}
         >
           Logout

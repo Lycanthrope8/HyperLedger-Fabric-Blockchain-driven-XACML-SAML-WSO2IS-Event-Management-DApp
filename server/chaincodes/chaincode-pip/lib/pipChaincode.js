@@ -29,7 +29,7 @@ class PIPChaincode extends Contract {
         }
     }
 
-    
+
     async setRole(ctx, username, roles) {
         console.log(`Setting role for ${username}`);
         const attributesKey = `attribute_${username}`;
@@ -45,7 +45,7 @@ class PIPChaincode extends Contract {
 
         const roleData = JSON.parse(existingData.toString());
         const existingRoles = new Set(roleData.role); // Convert existing roles to a Set to avoid duplicates
-        
+
         let newRolesAdded = false;
         (Array.isArray(roles) ? roles : [roles]).forEach(role => {
             if (!existingRoles.has(role)) {
@@ -64,12 +64,12 @@ class PIPChaincode extends Contract {
         console.log(`Roles updated for ${username}`);
     }
 
-    
+
     async getRole(ctx, username) {
         console.log(`Getting role for ${username}`);
         const attributesKey = `attribute_${username}`;
         const roleData = await ctx.stub.getState(attributesKey);
-    
+
         if (!roleData || roleData.length === 0) {
             // User does not exist, assign a default "user" role
             console.log(`User ${username} does not exist. Assigning default "user" role.`);
@@ -77,10 +77,10 @@ class PIPChaincode extends Contract {
             await ctx.stub.putState(attributesKey, Buffer.from(JSON.stringify(defaultRoleData)));
             return JSON.stringify(defaultRoleData);
         }
-        
+
         return roleData.toString(); // Return the existing roles if found
     }
-    
+
 
     async checkUserExists(ctx, username) {
         console.log(`Checking and updating role for user: ${username}`);
@@ -105,7 +105,7 @@ class PIPChaincode extends Contract {
         const endKey = 'attribute_~'; // '~' is used to cover all possible subsequent characters
         const iterator = await ctx.stub.getStateByRange(startKey, endKey);
         const allUsers = [];
-    
+
         let result = await iterator.next();
         while (!result.done) {
             const user = JSON.parse(result.value.value.toString());
@@ -114,17 +114,17 @@ class PIPChaincode extends Contract {
             result = await iterator.next();
         }
         await iterator.close();
-    
+
         console.log('All users retrieved from the ledger.');
         return JSON.stringify(allUsers);
     }
-    
+
     async getUsersByRole(ctx, roleToFind) {
         const startKey = 'attribute_';
         const endKey = 'attribute_~';
         const iterator = await ctx.stub.getStateByRange(startKey, endKey);
         const filteredUsers = [];
-    
+
         let result = await iterator.next();
         while (!result.done) {
             const user = JSON.parse(result.value.value.toString());
@@ -135,12 +135,12 @@ class PIPChaincode extends Contract {
             result = await iterator.next();
         }
         await iterator.close();
-    
+
         console.log(`All users with role ${roleToFind} retrieved from the ledger.`);
         return JSON.stringify(filteredUsers);
     }
 
-    
+
 
 }
 

@@ -19,7 +19,7 @@ router.post('/enforce', async (req, res) => {
 router.post('/evaluate', async (req, res) => {
     try {
         const result = await fabricFunctions.evaluatePolicy(req.body);
-        res.send(`Evaluation Result: ${result}`);
+        res.send(result);
     } catch (error) {
         res.status(500).send("Error processing request: " + error.message);
     }
@@ -71,7 +71,7 @@ router.post('/getPolicy', async (req, res) => {
 router.get('/getAllPolicies', async (req, res) => {
     try {
         const result = await fabricFunctions.getAllPolicies();
-        res.send(`All Policies: ${result}`);
+        res.send(result);
     } catch (error) {
         res.status(500).send("Error processing request: " + error.message);
     }
@@ -81,7 +81,7 @@ router.get('/getAllPolicies', async (req, res) => {
 router.get('/getAllUsers', async (req, res) => {
     try {
         const result = await fabricFunctions.getAllUsers();
-        res.send(`All Users: ${result}`);
+        res.send(result);
     } catch (error) {
         res.status(500).send("Error processing request: " + error.message);
     }

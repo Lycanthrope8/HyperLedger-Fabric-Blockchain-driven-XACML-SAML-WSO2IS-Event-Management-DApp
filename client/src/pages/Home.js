@@ -22,11 +22,8 @@ function Home() {
         setLoading(false);
       }
     };
-
     fetchEvents();
   }, []);
-
-  console.log(posts[0]);
 
   const handleCreateEvent = () => {
     navigate("/eventcreate");
@@ -64,9 +61,9 @@ function Home() {
     <>
       <Navbar />
       <div className="flex flex-col w-full h-full">
-        <div className="w-full flex justify-end pt-4 pr-8">
+        <div className="w-full flex justify-end pt-4 pr-4">
           <button
-            className="text-zinc-50 bg-[#5c5470] w-48 py-4 px-4 rounded-lg hover:brightness-105"
+            className="text-zinc-50 bg-[#5c5470] w-48 py-4 px-4 rounded hover:brightness-110 transition-all"
             onClick={handleCreateEvent}
           >
             Create Event

@@ -282,7 +282,7 @@ module.exports = {
     addPolicy,
     getPolicy,
     getAllPolicies,
-    getAllUsers,      
+    getAllUsers,
     getUsersByRole,
-    checkUserExists,    
+    checkUserExists,
 };

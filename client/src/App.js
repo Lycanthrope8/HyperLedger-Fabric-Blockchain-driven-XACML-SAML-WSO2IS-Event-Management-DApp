@@ -30,10 +30,10 @@ function App() {
       ></l-bouncy></div>;
   }
 
-  if (error) {
-    console.error("Authorization Error:", error);
-    return <div>Error checking authorization.</div>;
-  }
+  // if (error) {
+  //   console.error("Authorization Error:", error);
+  //   return <div>Error checking authorization.</div>;
+  // }
 
   return (
     <Router>
@@ -41,7 +41,8 @@ function App() {
         <Route path="/" element={authenticated ? <Navigate to="/home" /> : <Login />} />
         <Route path="/home" element={authenticated ? <Home /> : <Navigate to="/" />} />
         <Route path="/admin"
-          element={authenticated ? (isAuthorized ? <AdminPage /> : <Navigate to="/not-authorized" />) : <Navigate to="/" />}
+          // element={authenticated ? (isAuthorized ? <AdminPage /> : <Navigate to="/not-authorized" />) : <Navigate to="/" />}
+          element={authenticated ? <AdminPage /> : <Navigate to="/" />}
         />
         <Route path="/eventcreate"
           element={authenticated ? (isAuthorized ? <CreateEvent /> : <Navigate to="/not-authorized" />) : <Navigate to="/" />}
