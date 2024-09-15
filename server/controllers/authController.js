@@ -33,6 +33,7 @@ const handleSamlConsumeRedirect = (req, res) => {
 };
 
 const handleLogout = (req, res) => {
+    console.log('User logged out');
     if (!req.isAuthenticated() || req.user == null) {
         return res.redirect('https://localhost:3001/');
     }
@@ -42,7 +43,6 @@ const handleLogout = (req, res) => {
             console.error('Error during logout:', err);
             return res.status(500).send('Error during logout');
         }
-
         return res.redirect('https://localhost:9447/samlsso');
     });
 };
@@ -52,6 +52,8 @@ const handleFailedLogin = (req, res) => {
 };
 
 const checkAuthStatus = (req, res) => {
+    console.log('Checking authentication status...');
+    console.log(req.isAuthenticated())
     if (req.isAuthenticated()) {
         res.json({ authenticated: true });
     } else {

@@ -17,7 +17,7 @@ function Navbar() {
   const handleLogout = () => {
     console.log('Logging out...');
     // window.location.href = `https://localhost:9447/samlsso?slo=true&spEntityID=localhost&returnTo=${url}`;
-    window.location.href = "https://localhost:9447/samlsso";
+    window.location.href = "https://localhost:3000/app/logout";
   };
 
   const handleAdmin = () => {
