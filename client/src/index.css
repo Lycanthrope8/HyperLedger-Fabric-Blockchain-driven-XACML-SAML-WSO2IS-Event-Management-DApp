@@ -11,7 +11,10 @@ body {
   font-family: "Montserrat", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(to left top, #1f1f1f, #2a2438);
+  /* background: linear-gradient(to left top, #1f1f1f, #2a2438); */
+  /* background-color: #f6f8fd; */
+  background-color: #ececf2;
+  background-image: url("misc/images/dotted-pattern.png");
   background-size: cover;
   background-attachment: fixed;
 }

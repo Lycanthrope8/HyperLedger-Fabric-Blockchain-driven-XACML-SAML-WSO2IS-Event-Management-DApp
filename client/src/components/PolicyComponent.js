@@ -9,7 +9,6 @@ function PolicyTesterComponent() {
     const [allPolicies, setAllPolicies] = useState(null);
     const [error, setError] = useState(null);
 
-    // Handle policy addition submission
     const handleAddPolicySubmit = async (event) => {
         event.preventDefault();
         setError(null);
@@ -17,27 +16,20 @@ function PolicyTesterComponent() {
 
         try {
             const res = await axios.post('https://localhost:3000/xacml/addPolicy', { policyId, policyXml });
-            console.log('Add Policy Response:', res.data);
             setAddPolicyResult(res.data);
         } catch (err) {
-            console.error('Error adding policy:', err);
             setError('Failed to add policy. Please try again.');
         }
     };
 
-    // Handle get all policies
     const handleGetAllPolicies = async () => {
         setError(null);
         setAllPolicies(null);
 
         try {
             const res = await axios.get('https://localhost:3000/xacml/getAllPolicies');
-            // console.log('All Policies Response:', res.data);
-
             setAllPolicies(res.data);
-
         } catch (err) {
-            console.error('Error getting all policies:', err);
             setError('Failed to fetch policies. Please try again.');
         }
     };
@@ -49,9 +41,7 @@ function PolicyTesterComponent() {
             <form onSubmit={handleAddPolicySubmit} className="mb-6">
                 <h2 className="text-lg font-bold mb-3 text-zinc-50">Add Policy</h2>
                 <div className="mb-4">
-                    <label className="block text-zinc-50 text-sm font-bold mb-2" htmlFor="policyId">
-                        Policy ID
-                    </label>
+                    <label className="block text-zinc-50 text-sm font-bold mb-2" htmlFor="policyId">Policy ID</label>
                     <input
                         id="policyId"
                         name="policyId"
@@ -62,9 +52,7 @@ function PolicyTesterComponent() {
                     />
                 </div>
                 <div className="mb-4">
-                    <label className="block text-zinc-50 text-sm font-bold mb-2" htmlFor="policyXmlAdd">
-                        Policy XML
-                    </label>
+                    <label className="block text-zinc-50 text-sm font-bold mb-2" htmlFor="policyXmlAdd">Policy XML</label>
                     <textarea
                         id="policyXmlAdd"
                         name="policyXmlAdd"
@@ -94,7 +82,7 @@ function PolicyTesterComponent() {
 
             {allPolicies && (
                 <div className="mt-4 p-4 border rounded-lg">
-                    <h2 className="text-lg font-bold mb-2 text-purple-800">Select a Policy</h2>
+                    <h2 className="text-lg font-bold mb-2 text-zinc-50">Select a Policy</h2>
                     <select
                         className="shadow appearance-none bg-[#5c5470] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline"
                         onChange={(e) => {
@@ -113,9 +101,9 @@ function PolicyTesterComponent() {
             )}
 
             {policyXml && (
-                <div className="mt-4 p-4 bg-purple-300/30 rounded-lg">
-                    <h2 className="text-lg font-bold mb-2 text-purple-200">Policy Record</h2>
-                    <pre className="text-purple-200 whitespace-pre-wrap">{policyXml}</pre>
+                <div className="mt-4 p-4 bg-[#35166e] rounded-lg">
+                    <h2 className="text-lg font-bold mb-2 text-zinc-50">Policy Record</h2>
+                    <pre className="text-zinc-50 whitespace-pre-wrap">{policyXml}</pre>
                 </div>
             )}
 

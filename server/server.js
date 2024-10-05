@@ -1,6 +1,8 @@
 const express = require('express');
 const session = require('express-session');
 const passport = require('./config/passport-config');
+const Docker = require('dockerode');
+const docker = new Docker();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const https = require('https');
@@ -10,6 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const xacmlRoutes = require('./routes/xacmlRoutes');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const dockerRoutes = require('./routes/dockerRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -42,6 +45,8 @@ app.use('/', authRoutes);
 app.use('/', userRoutes);
 app.use('/', eventRoutes);
 app.use('/xacml', xacmlRoutes); // Use XACML routes
+app.use('/docker', dockerRoutes);
+
 
 // MONGOOSE CONNECTION
 mongoose.connect(process.env.MONGO_URI).then(() => {
@@ -57,3 +62,4 @@ const httpsOptions = {
   key: fs.readFileSync(path.join(__dirname, 'security', 'server.key')),
   cert: fs.readFileSync(path.join(__dirname, 'security', 'server.cert'))
 };
+

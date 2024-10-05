@@ -30,7 +30,7 @@ function TestComponent() {
     return (
         <div className="p-4">
             <h1 className="text-xl font-bold mb-4 text-zinc-50">RBAC Policy Tester</h1>
-            <div className="border p-4 rounded-lg mb-4">
+            <div className="border border-[#5c5470] p-4 rounded-lg mb-4 bg-[#202124]">
                 <div className="flex flex-col">
                     <div className='flex items-center justify-between'>
                         <label className="text-md font-bold text-zinc-50">Subject:</label>
@@ -38,7 +38,7 @@ function TestComponent() {
                             type="text"
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
-                            className="w-11/12 p-2 rounded bg-[#5c5470] text-zinc-50 outline-none"
+                            className="w-11/12 p-2 rounded bg-[#292a2d] text-zinc-50 outline-none"
                         />
                     </div>
                     <div className='flex items-center justify-between mt-4'>
@@ -47,7 +47,7 @@ function TestComponent() {
                             type="text"
                             value={action}
                             onChange={(e) => setAction(e.target.value)}
-                            className="w-11/12 p-2 rounded bg-[#5c5470] text-zinc-50 outline-none"
+                            className="w-11/12 p-2 rounded bg-[#292a2d] text-zinc-50 outline-none"
                         />
                     </div>
                     <div className='flex items-center justify-between mt-4'>
@@ -56,12 +56,12 @@ function TestComponent() {
                             type="text"
                             value={resource}
                             onChange={(e) => setResource(e.target.value)}
-                            className="w-11/12 p-2 rounded bg-[#5c5470] text-zinc-50 outline-none"
+                            className="w-11/12 p-2 rounded bg-[#292a2d] text-zinc-50 outline-none"
                         />
                     </div>
                     <button
                         onClick={handleEvaluateRequest}
-                        className="w-full mt-8 bg-[#5c5470] text-zinc-50 py-2 px-4 rounded hover:brightness-105"
+                        className="w-full mt-8 bg-[#292a2d] text-zinc-50 py-2 px-4 rounded hover:brightness-105"
                     >
                         Evaluate request
                     </button>
@@ -69,13 +69,11 @@ function TestComponent() {
             </div>
 
             {response && (
-                <div className={`border text-xl p-4 rounded-lg ${response.status === 'Permit' ? 'border-green-500' : 'border-red-500'}`} >
-                    {/* <h2 className="text-xl font-bold text-zinc-50">Response</h2> */}
+                <div className={`border p-4 rounded-lg ${response.status === 'Permit' ? 'border-green-500' : 'border-red-500'} bg-[#202124]`}>
                     <p><strong>Decision:</strong> {response.status}</p>
-                </div >
-            )
-            }
-        </div >
+                </div>
+            )}
+        </div>
     );
 }
 

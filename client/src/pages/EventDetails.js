@@ -237,22 +237,26 @@ function EventDetails() {
                 </button>
               )}
             </div>
-            <div className="flex gap-4 justify-center items-start">
-              <button
-                onClick={toggleEdit}
-                className=" text-yellow-600 hover:text-yellow-700 transition-all"
-                title="Edit Event"
-              >
-                <TbEdit size={32} />
-              </button>
-              <button
-                onClick={handleDelete}
-                className=" text-red-600 hover:text-red-700 transition-all"
-                title="Delete Event"
-              >
-                <TbTrash size={32} />
-              </button>
-            </div>
+            {
+              userProfile?.username === post.organizer && (
+                <div className="flex gap-4 justify-center items-start">
+                  <button
+                    onClick={toggleEdit}
+                    className=" text-yellow-600 hover:text-yellow-700 transition-all"
+                    title="Edit Event"
+                  >
+                    <TbEdit size={32} />
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className=" text-red-600 hover:text-red-700 transition-all"
+                    title="Delete Event"
+                  >
+                    <TbTrash size={32} />
+                  </button>
+                </div>
+              )
+            }
           </div>
         </div>
         {!editing && (

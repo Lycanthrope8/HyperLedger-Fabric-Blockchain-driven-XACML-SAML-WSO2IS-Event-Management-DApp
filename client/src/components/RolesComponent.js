@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TbEdit, TbTrash } from "react-icons/tb";
 
 function RolesComponent() {
     const [roles, setRoles] = useState([
@@ -31,10 +32,10 @@ function RolesComponent() {
     return (
         <div className="p-4">
             <h1 className="text-xl font-bold mb-4 text-zinc-50">Role Management</h1>
-            <div className="bg-[#2a2438] p-4 rounded-lg">
+            <div className="bg-[#202124] p-4 rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-bold text-zinc-50">Roles</h2>
-                    <button onClick={handleAddRole} className="bg-[#5c5470] py-2 px-4 rounded-full text-zinc-50 hover:brightness-105">
+                    <button onClick={handleAddRole} className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 hover:brightness-105">
                         Add Role
                     </button>
                 </div>
@@ -51,9 +52,9 @@ function RolesComponent() {
                             <tr key={role.id}>
                                 <td className="border px-4 py-2">{role.id}</td>
                                 <td className="border px-4 py-2">{role.name}</td>
-                                <td className="border px-4 py-2">
-                                    <button onClick={() => handleEdit(role.id)} className="bg-[#5c5470] py-1 px-3 rounded-full hover:brightness-105">Edit</button>
-                                    <button onClick={() => handleDelete(role.id)} className="bg-red-500 py-1 px-3 rounded-full hover:brightness-105 ml-2">Delete</button>
+                                <td className="border px-4 py-2 flex justify-evenly">
+                                    <button onClick={() => handleEdit(role.id)} className="bg-[#5c5470] py-1 px-3 rounded hover:brightness-105"><TbEdit className='text-2xl' /></button>
+                                    <button onClick={() => handleDelete(role.id)} className="bg-[#6d2b2b] py-1 px-3 rounded hover:brightness-105"><TbTrash className='text-2xl' /></button>
                                 </td>
                             </tr>
                         ))}
