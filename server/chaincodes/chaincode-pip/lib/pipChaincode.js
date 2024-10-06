@@ -17,7 +17,7 @@ class PIPChaincode extends Contract {
             },
             {
                 username: 'jane.doe',
-                role: ['user']
+                role: ['user', 'HR']
             }
         ];
 

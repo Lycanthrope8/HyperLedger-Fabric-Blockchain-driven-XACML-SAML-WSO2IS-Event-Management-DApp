@@ -39,8 +39,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={authenticated ? <Navigate to="/home" /> : <Login />} />
-        {/* <Route path="/home" element={authenticated ? <Home /> : <Navigate to="/" />} /> */}
-        <Route path="/home" element={<Home />} />
+        <Route path="/home" element={authenticated ? <Home /> : <Navigate to="/" />} />
+        {/* <Route path="/home" element={<Home />} /> */}
         <Route path="/admin"
           // element={authenticated ? (isAuthorized ? <AdminPage /> : <Navigate to="/not-authorized" />) : <Navigate to="/" />}
           element={authenticated ? <AdminPage /> : <Navigate to="/" />}
