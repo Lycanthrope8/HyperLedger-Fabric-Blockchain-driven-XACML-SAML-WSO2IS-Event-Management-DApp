@@ -49,12 +49,16 @@ class PAPChaincode extends Contract {
     }
 
     async addPolicy(ctx, policyId, policyXml) {
-        
+
         console.log(`Adding policy ${policyId}`);
+        
         const policyKey = `policy_${policyId}`;
         await ctx.stub.putState(policyKey, Buffer.from(policyXml));
+        
         console.log(`Policy ${policyId} added`);
     }
+    
+    
 
     async getPolicy(ctx, policyId) {
         console.log(`Getting policy ${policyId}`);
@@ -85,7 +89,7 @@ class PAPChaincode extends Contract {
                 // Parse each record into a readable format
                 const Key = res.value.key;
                 const Record = res.value.value.toString('utf8');
-                console.log("RECORD: ",Record);
+                // console.log("RECORD: ",Record);
                 result.push({ Key, Record });
             }
         }
