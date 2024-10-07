@@ -157,16 +157,55 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
    - Navigate to the `test-network` directory and run the following commands:
 
      ```bash
-     ./network.sh down    # Stop any previous network
-     ./network.sh up createChannel  # Start network and create channel
-
-     ./network.sh deployCC -ccn chaincodePAP -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pap -ccl javascript
-     ./network.sh deployCC -ccn chaincodePDP -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pdp -ccl javascript
-     ./network.sh deployCC -ccn chaincodePEP -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pep -ccl javascript
-     ./network.sh deployCC -ccn chaincodePIP -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pip -ccl javascript
+     export PATH=${PWD}/../bin:$PATH
+     export FABRIC_CFG_PATH=$PWD/../config/
+     export CORE_PEER_TLS_ENABLED=true
+     export CORE_PEER_LOCALMSPID=Org1MSP
+     export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+     export CORE_PEER_ADDRESS=localhost:7051
+     
+     # Start the Network and Create a Channel
+      ./network.sh down
+      ./network.sh up createChannel
+      
+      # Deploy Chaincode for chaincodePAP
+      ./network.sh deployCC -ccn chaincodePAP \
+      -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pap \
+      -ccl javascript -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+      
+      # Deploy Chaincode for chaincodePDP
+      ./network.sh deployCC -ccn chaincodePDP \
+      -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pdp \
+      -ccl javascript -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+      
+      # Deploy Chaincode for chaincodePEP
+      ./network.sh deployCC -ccn chaincodePEP \
+      -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pep \
+      -ccl javascript -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+      
+      # Deploy Chaincode for chaincodePIP
+      ./network.sh deployCC -ccn chaincodePIP \
+      -ccp ../HyperLedger-Fabric-Blockchain-driven-XACML-SAML-WSO2IS-Event-Management-DApp/server/chaincodes/chaincode-pip \
+      -ccl javascript -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+      
+      # Initialize Chaincode Ledgers
+      peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
+      --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" \
+      -C mychannel -n chaincodePAP \
+      --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" \
+      --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" \
+      -c '{"function":"initLedger","Args":[]}'
+      
+      peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
+      --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" \
+      -C mychannel -n chaincodePIP \
+      --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" \
+      --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" \
+      -c '{"function":"initLedger","Args":[]}'
      ```
 
-   - Set environment variables and initialize chaincodes:
+   <!--- - Set environment variables and initialize chaincodes:
 
      ```bash
      export PATH=${PWD}/../bin:$PATH
@@ -182,7 +221,7 @@ This guide provides step-by-step instructions for setting up WSO2 Identity Serve
 
      # Initialize chaincodePIP ledger
      peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n chaincodePIP --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"initLedger","Args":[]}'
-     ```
+     ``` --->
 
 ## 3. Running the Application
 
