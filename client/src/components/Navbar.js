@@ -8,7 +8,7 @@ function Navbar() {
   const { userProfile } = useUser();
   const username = userProfile.username;
   console.log('Username:', username);
-  const { isAuthorized, loading, error } = useAuthorization(username, 'write', 'adminPanel');
+  const { isAuthorized, loading, error } = useAuthorization(username, 'write', 'roles');
 
   const isLoading = loading || !isAuthorized;
 

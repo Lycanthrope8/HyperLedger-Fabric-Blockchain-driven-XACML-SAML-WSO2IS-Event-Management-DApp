@@ -7,10 +7,23 @@ import RolesComponent from '../components/RolesComponent';
 import TestComponent from '../components/TestComponent';
 import PolicyComponent from '../components/PolicyComponent';
 import DockerComponent from '../components/DockerComponent';
+import useAuthorization from '../hooks/useAuthorization';
+import { useUser } from '../contexts/UserContext';
 
 function AdminPage() {
     const Navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('Users');
+    const { userProfile } = useUser();
+    const username = userProfile.username;
+
+    // Authorization hooks for each tab
+    const { isAuthorized: canViewUsers } = useAuthorization(username, 'read', 'roles');
+    const { isAuthorized: canViewRoles } = useAuthorization(username, 'read', 'roles');
+    const { isAuthorized: canViewActions } = useAuthorization(username, 'read', 'actions');
+    const { isAuthorized: canViewResources } = useAuthorization(username, 'read', 'resources');
+    const { isAuthorized: canViewDocker } = useAuthorization(username, 'read', 'docker');
+    const { isAuthorized: canViewTest } = useAuthorization(username, 'read', 'test');
+    const { isAuthorized: canViewPolicy } = useAuthorization(username, 'read', 'policy');
 
     const renderContent = () => {
         switch (activeTab) {
@@ -40,27 +53,41 @@ function AdminPage() {
                     ADMIN PANEL
                 </h1>
                 <ul className="space-y-2">
-                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Users')}>
-                        <FiUsers /> Users
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Roles')}>
-                        <FiTool /> Roles
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Actions')}>
-                        <FiArchive /> Actions
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Resources')}>
-                        <FiBookOpen /> Resources
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Docker')}>
-                        <FaDocker /> Docker
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Test')}>
-                        <FiCheckSquare /> Test
-                    </li>
-                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Policy')}>
-                        <FiLogOut /> Policy
-                    </li>
+                    {canViewUsers && (
+                        <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Users')}>
+                            <FiUsers /> Users
+                        </li>
+                    )}
+                    {canViewRoles && (
+                        <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Roles')}>
+                            <FiTool /> Roles
+                        </li>
+                    )}
+                    {canViewActions && (
+                        <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Actions')}>
+                            <FiArchive /> Actions
+                        </li>
+                    )}
+                    {canViewResources && (
+                        <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Resources')}>
+                            <FiBookOpen /> Resources
+                        </li>
+                    )}
+                    {canViewDocker && (
+                        <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Docker')}>
+                            <FaDocker /> Docker
+                        </li>
+                    )}
+                    {canViewTest && (
+                        <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Test')}>
+                            <FiCheckSquare /> Test
+                        </li>
+                    )}
+                    {canViewPolicy && (
+                        <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Policy')}>
+                            <FiLogOut /> Policy
+                        </li>
+                    )}
                     <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Home')}>
                         <FiHome /> Go back Home
                     </li>
