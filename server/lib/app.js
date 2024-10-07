@@ -255,6 +255,27 @@ async function getUsersByRole(role) {
     }
 }
 
+
+// router.delete('/deleteUser/:username', async (req, res) => {
+//     try {
+//         const { username } = req.params;
+//         await fabricFunctions.deleteUser(username);
+//         res.send(`User ${username} deleted successfully`);
+//     } catch (error) {
+//         res.status(500).send("Error deleting user: " + error.message);
+//     }
+// });
+
+// router.put('/updateUserRole', async (req, res) => {
+//     try {
+//         const { username, roles } = req.body;
+//         await fabricFunctions.updateUserRole(username, roles);
+//         res.send(`User ${username} roles updated successfully`);
+//     } catch (error) {
+//         res.status(500).send("Error updating user: " + error.message);
+//     }
+// });
+
 async function checkUserExists(username) {
     const client = await newGrpcConnection();
     const gateway = connect({

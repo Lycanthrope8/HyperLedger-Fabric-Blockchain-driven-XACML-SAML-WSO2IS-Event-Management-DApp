@@ -3,3 +3,5 @@
 2. Trying to access either of these two just after the first loading of the site also does the same.
 
 3. Starting everything for the first time gives an error "Error checking authorization" from "/client/App.js" line 33. Note: commenting out line 31:34 fixes the issue but error handling is compromised.
+
+4. "server/lib/app.js" needs a delete user function
