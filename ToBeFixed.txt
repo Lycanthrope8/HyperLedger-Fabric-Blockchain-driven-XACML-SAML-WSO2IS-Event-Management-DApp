@@ -1,5 +1,10 @@
-1. Randomly Admin and Create Event button doesn't work anymore and takes the user to the endpoint  /not-authorized.
+1. (Fixed) Randomly Admin and Create Event button doesn't work anymore and takes the user to the endpoint  /not-authorized.
 
 2. Trying to access either of these two just after the first loading of the site also does the same.
 
-3. Starting everything for the first time gives an error "Error checking authorization" from "/client/App.js" line 33. Note: commenting out line 31:34 fixes the issue but error handling is compromised.
+3. (Commented Out) Starting everything for the first time gives an error "Error checking authorization" from "/client/App.js" line 33. Note: commenting out line 31:34 fixes the issue but error handling is compromised.
+
+4. Gives Decision from Previous version of a ledger component
+
+5. Make PEP Engine faster
+
