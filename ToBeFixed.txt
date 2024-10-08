@@ -6,8 +6,8 @@
 
 4. Gives Decision from Previous version of a ledger component
 
-5. Make PEP Engine faster
+5. (Fixed) Make PEP Engine faster
 
-3. Starting everything for the first time gives an error "Error checking authorization" from "/client/App.js" line 33. Note: commenting out line 31:34 fixes the issue but error handling is compromised.
+6. Starting everything for the first time gives an error "Error checking authorization" from "/client/App.js" line 33. Note: commenting out line 31:34 fixes the issue but error handling is compromised.
 
-4. "server/lib/app.js" needs a delete user function
+7. "server/lib/app.js" needs a delete user function

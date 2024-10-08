@@ -204,6 +204,7 @@ async function getContractInstance(gateway, channelName, chaincodeName) {
     return network.getContract(chaincodeName);
 }
 
+
 async function enforceAccessControl(subject, action, resource) {
     const client = await newGrpcConnection();
     const gateway = connect({
@@ -214,7 +215,7 @@ async function enforceAccessControl(subject, action, resource) {
     });
     try {
         const contract = await getContractInstance(gateway, channelName, 'chaincodePEP');
-        const result = await contract.submitTransaction('enforce', subject, action, resource);
+        const result = await contract.evaluateTransaction('enforce', subject, action, resource);
         return utf8Decoder.decode(result);
     } catch (error) {
         console.error(`Error during access control enforcement: ${error.message}`);
@@ -224,6 +225,7 @@ async function enforceAccessControl(subject, action, resource) {
         client.close();
     }
 }
+
 
 async function evaluatePolicy(request) {
     const client = await newGrpcConnection();
@@ -424,7 +426,7 @@ async function checkUserExists(username) {
     });
     try {
         const contract = await getContractInstance(gateway, channelName, 'chaincodePIP');
-        const result = await contract.submitTransaction('checkUserExists', username);
+        const result = await contract.evaluateTransaction('checkUserExists', username);
         return utf8Decoder.decode(result);
     } catch (error) {
         console.error(`Error checking if user exists: ${error.message}`);
@@ -434,6 +436,7 @@ async function checkUserExists(username) {
         client.close();
     }
 }
+
 
 module.exports = {
     enforceAccessControl,
