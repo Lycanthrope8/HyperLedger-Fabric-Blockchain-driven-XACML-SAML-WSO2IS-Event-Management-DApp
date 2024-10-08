@@ -13,6 +13,7 @@ const xacmlRoutes = require('./routes/xacmlRoutes');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const dockerRoutes = require('./routes/dockerRoutes');
+const roleRoutes = require('./routes/roleRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -46,6 +47,7 @@ app.use('/', userRoutes);
 app.use('/', eventRoutes);
 app.use('/xacml', xacmlRoutes); // Use XACML routes
 app.use('/docker', dockerRoutes);
+app.use('/roles', roleRoutes);
 
 
 // MONGOOSE CONNECTION

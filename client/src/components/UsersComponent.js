@@ -8,6 +8,7 @@ function UserComponent() {
     const [rolesOptions, setRolesOptions] = useState([]);
     const [editUser, setEditUser] = useState(null);
     const [selectedRoles, setSelectedRoles] = useState([]);
+    const [newRole, setNewRole] = useState(''); // State for the new role
 
     useEffect(() => {
         const fetchUsersAndRoles = async () => {
@@ -52,6 +53,14 @@ function UserComponent() {
             setUsers(users.filter(user => user.username !== username));
         } catch (error) {
             console.error('Failed to delete user:', error);
+        }
+    };
+
+    const handleAddNewRole = () => {
+        if (newRole.trim()) {
+            const newRoleOption = { value: newRole.trim(), label: newRole.trim() };
+            setSelectedRoles([...selectedRoles, newRoleOption]);
+            setNewRole(''); // Reset the input field
         }
     };
 
@@ -131,6 +140,18 @@ function UserComponent() {
                         styles={customStyles}
                         className="text-zinc-50"
                     />
+                    <div className="flex mt-4">
+                        <input
+                            type="text"
+                            value={newRole}
+                            onChange={(e) => setNewRole(e.target.value)}
+                            placeholder="Enter a new role"
+                            className="bg-[#444444] text-zinc-50 px-3 py-2 rounded-md mr-2"
+                        />
+                        <button onClick={handleAddNewRole} className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105">
+                            Add Role
+                        </button>
+                    </div>
                     <button className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105 mt-4" onClick={handleSave}>
                         Save
                     </button>
