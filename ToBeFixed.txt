@@ -11,3 +11,12 @@
 6. Starting everything for the first time gives an error "Error checking authorization" from "/client/App.js" line 33. Note: commenting out line 31:34 fixes the issue but error handling is compromised.
 
 7. "server/lib/app.js" needs a delete user function
+
+8. https://localhost:3000/roles can be accessed even if logged out
+
+9. https://localhost:3000/events can be accessed even if logged out
+
+10. Some others links might be accessed staying logged out
+
+11. "Policy Added Successfully" should be shown on top of the screen
+

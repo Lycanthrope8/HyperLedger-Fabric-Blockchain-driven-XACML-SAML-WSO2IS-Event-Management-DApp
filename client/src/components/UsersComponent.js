@@ -18,9 +18,10 @@ function UserComponent() {
                     setUsers(usersResponse.data);
                 }
 
-                // const rolesResponse = await axios.get('https://localhost:3000/xacml/getAllRoles');
-                // console.log(rolesResponse.data);
-                // setRolesOptions(rolesResponse.data.map(role => ({ value: role, label: role })));
+                const rolesResponse = await axios.get('https://localhost:3000/roles');
+                if (Array.isArray(rolesResponse.data)) {
+                    setRolesOptions(rolesResponse.data.map(role => ({ value: role.name, label: role.name })));
+                }
             } catch (error) {
                 console.error('Failed to fetch users or roles:', error);
             }
@@ -30,20 +31,48 @@ function UserComponent() {
 
     const handleEdit = (user) => {
         setEditUser(user);
-        setSelectedRoles(user.role ? user.role.map(r => ({ value: r, label: r })) : []);
+        const userRoles = user.role ? user.role.map(r => ({ value: r, label: r })) : [];
+        setSelectedRoles(userRoles);
+
+        // Filter out roles that the user already has
+        const availableRoles = rolesOptions.filter(
+            (roleOption) => !userRoles.find(userRole => userRole.value === roleOption.value)
+        );
+        setRolesOptions(availableRoles);
     };
 
     const handleSave = async () => {
         try {
             const rolesToSave = selectedRoles.map(option => option.value);
-            await axios.put('https://localhost:3000/xacml/updateUserRole', {
-                username: editUser.username,
-                roles: rolesToSave,
-            });
-            setUsers(users.map(user => user.username === editUser.username ? { ...user, role: rolesToSave } : user));
+            console.log('Roles to save:', rolesToSave); // Debugging roles
+
+            // Iterate over each selected role and send a POST request one by one
+            for (const role of rolesToSave) {
+                const response = await axios.post('https://localhost:3000/xacml/setRole', {
+                    username: editUser.username,
+                    roles: role,  // Send one role at a time
+                });
+
+                console.log('Response from server:', response.data); // Debugging response
+
+                if (response.status !== 200) {
+                    throw new Error(`Failed to save role: ${role}`);
+                }
+            }
+
+            // Update the user in the users list with the new roles
+            const updatedUsers = users.map(user => 
+                user.username === editUser.username ? { ...user, role: rolesToSave } : user
+            );
+            setUsers(updatedUsers);
+
+            console.log('Updated users:', updatedUsers); // Debugging users update
+
+            // Reset the form and clear the edit state
             setEditUser(null);
+            setSelectedRoles([]);
         } catch (error) {
-            console.error('Failed to update user:', error);
+            console.error('Failed to update user roles:', error);
         }
     };
 
@@ -59,7 +88,9 @@ function UserComponent() {
     const handleAddNewRole = () => {
         if (newRole.trim()) {
             const newRoleOption = { value: newRole.trim(), label: newRole.trim() };
-            setSelectedRoles([...selectedRoles, newRoleOption]);
+            if (!selectedRoles.find(role => role.value === newRole.trim())) {
+                setSelectedRoles([...selectedRoles, newRoleOption]);
+            }
             setNewRole(''); // Reset the input field
         }
     };
