@@ -20,3 +20,4 @@
 
 11. "Policy Added Successfully" should be shown on top of the screen
 
+12. Loaders could be added while setting roles.
