@@ -50,7 +50,7 @@ function AdminPage() {
         <div className="flex min-h-screen text-[#e8eaed] bg-[#202124]">
             <div className="min-w-64 p-5 bg-[#202124]">
                 <h1 onClick={() => Navigate("/")} className="text-lg pl-2 font-bold text-[#f8f9fa] mb-10 cursor-pointer">
-                    ADMIN PANEL
+                    {canViewTest ? 'ADMIN PANEL' : 'HR PANEL'}
                 </h1>
                 <ul className="space-y-2">
                     {canViewUsers && (

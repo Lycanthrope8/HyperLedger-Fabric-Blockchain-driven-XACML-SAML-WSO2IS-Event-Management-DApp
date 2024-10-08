@@ -108,7 +108,7 @@ function EventDetails() {
 
   if (!post) {
     return (
-      <div className="text-center text-zinc-50 text-xl">Event not found</div>
+      <div className="text-center text-zinc-700 text-xl">Event not found</div>
     );
   }
 
@@ -124,7 +124,7 @@ function EventDetails() {
           {editing ? (
             <div
               {...getRootProps()}
-              className="border-dashed border-2 border-zinc-600 bg-[#3b3a3a] p-4 rounded-lg mb-4 cursor-pointer"
+              className="border-dashed border-2 border-zinc-600 bg-zinc-300 p-4 rounded-lg mb-4 cursor-pointer"
             >
               <input name="image" {...getInputProps()} />
               {files.length > 0 ? (
@@ -136,7 +136,7 @@ function EventDetails() {
                   />
                 </div>
               ) : (
-                <p className="text-zinc-50 text-center">
+                <p className="h-full flex justify-center items-center text-zinc-700">
                   {isDragActive
                     ? "Drop the image here ..."
                     : "Drag 'n' drop an image here, or click to select an image"}
@@ -152,26 +152,26 @@ function EventDetails() {
           )}
           <div className="flex">
             <div className="grow">
-              <h1 className="text-5xl font-bold text-zinc-50 mb-2 text-pretty hyphens-auto">
+              <h1 className="text-5xl font-bold text-zinc-700 mb-2 text-pretty hyphens-auto">
                 {editing ? (
                   <input
                     type="text"
                     name="title"
                     value={formData.title}
                     onChange={handleInputChange}
-                    className="w-full bg-purple-900/40 px-4 py-2 mb-2 rounded text-zinc-50"
+                    className="w-full bg-zinc-300 px-4 py-2 mb-2 rounded text-zinc-700"
                   />
                 ) : (
                   post.title
                 )}
               </h1>
-              <p className="flex gap-1 text-lg text-zinc-50 mb-8">
+              <p className="flex gap-1 text-lg text-zinc-700 mb-8">
                 by{" "}
-                <span className="font-bold text-slate-400">{post.organizer}</span>
+                <span className="font-bold text-slate-500">{post.organizer}</span>
               </p>
               {!editing && (
                 <button
-                  className="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-zinc-50 font-bold py-2 px-4 rounded mb-8 transition-all"
+                  className="flex items-center gap-2 bg-zinc-400 hover:bg-zinc-400 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all"
                   onClick={() => alert("Ticket purchased successfully.")}
                 >
                   <IoTicketSharp className="text-xl" />
@@ -179,49 +179,49 @@ function EventDetails() {
                 </button>
               )}
 
-              <p className="text-lg text-zinc-50">
+              <p className="text-lg text-zinc-700">
                 {editing ? (
                   <input
                     type="date"
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    className="w-full bg-purple-900/40 px-4 py-2 mb-2 rounded text-zinc-50"
+                    className="w-full bg-zinc-300 px-4 py-2 mb-2 rounded text-zinc-700"
                   />
                 ) : (
                   <div className="flex items-center text-lg font-semibold">
-                    <FaCalendarDays className="inline mr-2 text-purple-500" />
+                    <FaCalendarDays className="inline mr-2 text-slate-500" />
                     {moment(post.date).format("Do MMM YYYY, HH:mm a")}
                   </div>
                 )}
               </p>
-              <p className="text-lg text-zinc-50">
+              <p className="text-lg text-zinc-700">
                 {editing ? (
                   <input
                     type="text"
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    className="w-full bg-purple-900/40 px-4 py-2 mb-2 rounded text-zinc-50"
+                    className="w-full bg-zinc-300 px-4 py-2 mb-2 rounded text-zinc-700"
                   />
                 ) : (
                   <div className="flex items-center text-lg font-semibold">
-                    <FaLocationDot className="inline mr-2 text-purple-500" />
+                    <FaLocationDot className="inline mr-2 text-slate-500" />
                     {post.location}
                   </div>
                 )}
               </p>
-              <p className="text-lg text-zinc-50 mt-8">
+              <p className="text-lg text-zinc-700 mt-8">
                 {editing ? (
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    className="w-full bg-purple-900/40 px-4 py-2 mb-2 rounded text-zinc-50"
+                    className="w-full bg-zinc-300 px-4 py-2 mb-2 rounded text-zinc-700"
                   />
                 ) : (
                   <div>
-                    <p className="font-semibold text-xl text-purple-500 mb-2">
+                    <p className="font-semibold text-xl text-slate-500 mb-2">
                       Description:
                     </p>
                     <span>{post.description}</span>
@@ -231,7 +231,7 @@ function EventDetails() {
               {editing && (
                 <button
                   onClick={handleSave}
-                  className="mt-4 py-2 px-4 bg-green-500 hover:bg-green-600 text-zinc-50 font-bold rounded"
+                  className="mt-4 py-2 px-4 bg-zinc-300 hover:bg-zinc-400 text-zinc-700 font-bold rounded transition-all"
                 >
                   Save Changes
                 </button>
