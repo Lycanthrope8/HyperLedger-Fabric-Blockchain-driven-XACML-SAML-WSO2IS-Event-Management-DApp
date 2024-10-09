@@ -17,7 +17,7 @@ class PIPChaincode extends Contract {
             },
             {
                 username: 'jane.doe',
-                role: ['user', 'HR']
+                role: ['HR']
             },
             {
                 username: 'bob.jones',
@@ -80,18 +80,36 @@ class PIPChaincode extends Contract {
     async getRole(ctx, username) {
         console.log(`Getting role for ${username}`);
         const attributesKey = `attribute_${username}`;
-        const roleData = await ctx.stub.getState(attributesKey);
-
-        if (!roleData || roleData.length === 0) {
-            // User does not exist, assign a default "user" role
+        const roleDataBytes = await ctx.stub.getState(attributesKey);
+    
+        // If no role data exists, create a new record with the default "user" role
+        if (!roleDataBytes || roleDataBytes.length === 0) {
             console.log(`User ${username} does not exist. Assigning default "user" role.`);
             const defaultRoleData = { role: ['user'] };
             await ctx.stub.putState(attributesKey, Buffer.from(JSON.stringify(defaultRoleData)));
             return JSON.stringify(defaultRoleData);
         }
-
-        return roleData.toString(); // Return the existing roles if found
+    
+        // If role data exists, parse it
+        const roleData = JSON.parse(roleDataBytes.toString());
+    
+        // Ensure the roleData contains an array of roles (safety check)
+        if (!Array.isArray(roleData.role)) {
+            console.log(`Invalid role format for ${username}. Initializing with default "user" role.`);
+            roleData.role = ['user'];
+        }
+    
+        // Check if the "user" role is missing and add it if necessary
+        if (!roleData.role.includes('user')) {
+            console.log(`User ${username} does not have the "user" role. Adding "user" role.`);
+            roleData.role.push('user');
+            await ctx.stub.putState(attributesKey, Buffer.from(JSON.stringify(roleData)));
+        }
+    
+        return JSON.stringify(roleData);
     }
+    
+    
 
 
     async checkUserExists(ctx, username) {
@@ -150,6 +168,53 @@ class PIPChaincode extends Contract {
 
         console.log(`All users with role ${roleToFind} retrieved from the ledger.`);
         return JSON.stringify(filteredUsers);
+    }
+
+    async deleteUser(ctx, username) {
+        console.log(`Deleting user: ${username}`);
+        const attributesKey = `attribute_${username}`;
+        const userData = await ctx.stub.getState(attributesKey);
+
+        if (!userData || userData.length === 0) {
+            console.log(`User ${username} does not exist.`);
+            return `User ${username} does not exist.`;
+        }
+
+        await ctx.stub.deleteState(attributesKey); // Deletes the user from the ledger
+        console.log(`User ${username} deleted from the ledger.`);
+        return `User ${username} deleted successfully.`;
+    }
+
+    async removeRole(ctx, username, roleToRemove) {
+        console.log(`Removing role ${roleToRemove} from user: ${username}`);
+        const attributesKey = `attribute_${username}`;
+        const existingData = await ctx.stub.getState(attributesKey);
+
+        if (!existingData || existingData.length === 0) {
+            console.log(`User ${username} does not exist.`);
+            return `User ${username} does not exist.`;
+        }
+
+        const roleData = JSON.parse(existingData.toString());
+        const existingRoles = new Set(roleData.role); // Convert roles to a Set
+
+        if (!existingRoles.has(roleToRemove)) {
+            console.log(`Role ${roleToRemove} not found for user: ${username}`);
+            return `Role ${roleToRemove} not found for user: ${username}`;
+        }
+
+        existingRoles.delete(roleToRemove); // Remove the specified role
+
+        if (existingRoles.size === 0) {
+            console.log(`No roles left for user: ${username}, deleting user.`);
+            await ctx.stub.deleteState(attributesKey); // If no roles are left, delete the user
+            return `User ${username} deleted as no roles are left.`;
+        }
+
+        roleData.role = Array.from(existingRoles); // Convert Set back to Array
+        await ctx.stub.putState(attributesKey, Buffer.from(JSON.stringify(roleData)));
+        console.log(`Role ${roleToRemove} removed for user: ${username}`);
+        return `Role ${roleToRemove} removed successfully for user: ${username}`;
     }
 
 

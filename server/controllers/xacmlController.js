@@ -96,6 +96,31 @@ const checkUserExists = async (req, res) => {
     }
 };
 
+
+const deleteUser = async (req, res) => {
+          try {
+                    const { username } = req.params; // Get username from the route parameters
+                    if (!username) {
+                    return res.status(400).send('Username is required');
+                    }
+                    await fabricFunctions.deleteUser(username); // Call the deleteUser fabric function
+                    res.send(`User ${username} deleted successfully`);
+          } catch (error) {
+                    res.status(500).send("Error deleting user: " + error.message);
+          }
+          };
+
+
+const removeRole = async (req, res) => {
+    try {
+        const { username, role } = req.body;
+        await fabricFunctions.removeRole(username, role);  // Assuming the function exists in fabricFunctions
+        res.send(`Role ${role} removed successfully for ${username}`);
+    } catch (error) {
+        res.status(500).send("Error removing role: " + error.message);
+    }
+};
+
 module.exports = {
     enforceAccessControl,
     evaluatePolicy,
@@ -106,5 +131,7 @@ module.exports = {
     getAllPolicies,
     getAllUsers,
     getUsersByRole,
-    checkUserExists
+    checkUserExists,
+    deleteUser,   
+    removeRole    
 };

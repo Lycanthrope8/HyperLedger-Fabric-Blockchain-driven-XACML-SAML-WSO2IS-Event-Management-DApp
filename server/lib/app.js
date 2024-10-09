@@ -428,6 +428,51 @@ async function checkUserExists(username) {
     }
 }
 
+// Function to delete a user
+async function deleteUser(username) {
+    const client = await newGrpcConnection();
+    const gateway = connect({
+        client,
+        identity: await newIdentity('Org1'),
+        signer: await newSigner('Org1'),
+        discovery: { enabled: true, asLocalhost: true },
+    });
+    try {
+        const contract = await getContractInstance(gateway, channelName, 'chaincodePIP');
+        await contract.submitTransaction('deleteUser', username);
+        console.log(`User ${username} deleted successfully`);
+        return `User ${username} deleted successfully`;
+    } catch (error) {
+        console.error(`Error deleting user: ${error.message}`);
+        throw error;
+    } finally {
+        gateway.close();
+        client.close();
+    }
+}
+
+// Function to remove a role from a user
+async function removeRole(username, role) {
+    const client = await newGrpcConnection();
+    const gateway = connect({
+        client,
+        identity: await newIdentity('Org1'),
+        signer: await newSigner('Org1'),
+        discovery: { enabled: true, asLocalhost: true },
+    });
+    try {
+        const contract = await getContractInstance(gateway, channelName, 'chaincodePIP');
+        await contract.submitTransaction('removeRole', username, role);
+        console.log(`Role ${role} removed from user ${username}`);
+        return `Role ${role} removed from user ${username}`;
+    } catch (error) {
+        console.error(`Error removing role: ${error.message}`);
+        throw error;
+    } finally {
+        gateway.close();
+        client.close();
+    }
+}
 
 module.exports = {
     enforceAccessControl,
@@ -440,4 +485,6 @@ module.exports = {
     getAllUsers,
     getUsersByRole,
     checkUserExists,
+    deleteUser,       
+    removeRole,       
 };

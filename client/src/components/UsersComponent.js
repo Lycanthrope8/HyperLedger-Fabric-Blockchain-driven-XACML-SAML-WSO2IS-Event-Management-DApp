@@ -5,7 +5,7 @@ import Select from 'react-select';
 import { useUser } from "../contexts/UserContext";
 import useAuthorization from '../hooks/useAuthorization';
 import ConfirmModalComponent from './confirmModalComponent';
-import { Bouncy } from 'ldrs'; // Import the Bouncy from ldrs
+import { Bouncy } from 'ldrs';
 
 function UserComponent() {
     const [users, setUsers] = useState([]);
@@ -18,17 +18,18 @@ function UserComponent() {
     const [userToModify, setUserToModify] = useState(null);
     const [isLoadingSave, setIsLoadingSave] = useState(false); // Loading state for save
     const [isLoadingDelete, setIsLoadingDelete] = useState(false); // Loading state for delete
+    const [roleToRemove, setRoleToRemove] = useState(null); // Role to be removed
 
     const { userProfile } = useUser();
-    const { isAuthorized: canDelete, loading: loadingDelete } = useAuthorization(userProfile.username, 'delete', 'roles');
-    const { isAuthorized: canSave, loading: loadingSave } = useAuthorization(userProfile.username, 'update', 'roles');
+    const { isAuthorized: canDelete, loading: loadingDelete } = useAuthorization(userProfile?.username, 'delete', 'roles');
+    const { isAuthorized: canSave, loading: loadingSave } = useAuthorization(userProfile?.username, 'update', 'roles');
 
     useEffect(() => {
         const fetchUsersAndRoles = async () => {
             try {
                 const usersResponse = await axios.get('https://localhost:3000/xacml/getAllUsers', {
                     headers: {
-                        'Authorization': `Bearer ${userProfile.username}`,  // Pass the username in the header
+                        'Authorization': `Bearer ${userProfile?.username}`,
                     },
                     withCredentials: true, // Include credentials if necessary
                 });
@@ -39,9 +40,9 @@ function UserComponent() {
     
                 const rolesResponse = await axios.get('https://localhost:3000/roles', {
                     headers: {
-                        'Authorization': `Bearer ${userProfile.username}`,  // Pass the username in the header
+                        'Authorization': `Bearer ${userProfile?.username}`,
                     },
-                    withCredentials: true, // Include credentials if necessary
+                    withCredentials: true,
                 });
     
                 if (Array.isArray(rolesResponse.data)) {
@@ -51,9 +52,10 @@ function UserComponent() {
                 console.error('Failed to fetch users or roles:', error);
             }
         };
-        fetchUsersAndRoles();
+        if (userProfile?.username) {
+            fetchUsersAndRoles();
+        }
     }, [userProfile]);
-    
 
     const handleEdit = (user) => {
         setEditUser(user);
@@ -106,6 +108,8 @@ function UserComponent() {
             setIsLoadingSave(false); // End loading
         }
     };
+    
+    
 
     const handleDelete = (username) => {
         setUserToModify(username);
@@ -125,9 +129,41 @@ function UserComponent() {
             });
             setUsers(users.filter(user => user.username !== userToModify));
         } catch (error) {
-            console.error('Failed to delete user:', error);
+            console.error('Failed to delete user:', error.message);
         } finally {
             setIsLoadingDelete(false); // End loading
+        }
+    };
+
+    const handleRemoveRole = (username, role) => {
+        setUserToModify(username);
+        setRoleToRemove(role);
+        setModalAction('removeRole');
+        setShowModal(true);
+    };
+
+    const confirmRemoveRole = async () => {
+        setIsLoadingSave(true); // Start loading
+        setShowModal(false);
+        try {
+            await axios.post('https://localhost:3000/xacml/removeRole', {
+                username: userToModify,
+                role: roleToRemove,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${userProfile.username}`,
+                },
+                withCredentials: true, // Include credentials if necessary
+            });
+
+            const updatedUsers = users.map(user =>
+                user.username === userToModify ? { ...user, role: user.role.filter(r => r !== roleToRemove) } : user
+            );
+            setUsers(updatedUsers);
+        } catch (error) {
+            console.error('Failed to remove role:', error);
+        } finally {
+            setIsLoadingSave(false); // End loading
         }
     };
 
@@ -186,7 +222,19 @@ function UserComponent() {
                             users.map((user, index) => (
                                 <tr key={index} className='border border-zinc-500'>
                                     <td className="border-r border-zinc-500 px-4 py-2">{user.username || 'Unknown'}</td>
-                                    <td className="border-r border-zinc-500 px-4 py-2">{user.role ? user.role.join(', ') : 'No role'}</td>
+                                    <td className="border-r border-zinc-500 px-4 py-2">
+                                        {user.role ? user.role.map(r => (
+                                            <span key={r} className="inline-block mr-2 mb-2 bg-[#5c5470] p-2 rounded text-white">
+                                                {r}
+                                                <button 
+                                                    className="ml-2 text-red-500 hover:text-red-300"
+                                                    onClick={() => handleRemoveRole(user.username, r)}
+                                                >
+                                                    &times;
+                                                </button>
+                                            </span>
+                                        )) : 'No role'}
+                                    </td>
                                     <td className="px-4 py-2 flex justify-evenly">
                                         <button className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105" onClick={() => handleEdit(user)}>
                                             <TbEdit className="text-2xl" />
@@ -246,11 +294,11 @@ function UserComponent() {
 
             {showModal && (
                 <ConfirmModalComponent
-                    title={modalAction === 'delete' ? 'Confirm Delete' : 'Confirm Save'}
-                    message={modalAction === 'delete' ? 'Are you sure you want to delete this user?' : 'Do you want to save the changes?'}
-                    onConfirm={modalAction === 'delete' ? confirmDelete : confirmSave}
+                    title={modalAction === 'delete' ? 'Confirm Delete' : modalAction === 'removeRole' ? 'Confirm Remove Role' : 'Confirm Save'}
+                    message={modalAction === 'delete' ? 'Are you sure you want to delete this user?' : modalAction === 'removeRole' ? `Are you sure you want to remove the role "${roleToRemove}"?` : 'Do you want to save the changes?'}
+                    onConfirm={modalAction === 'delete' ? confirmDelete : modalAction === 'removeRole' ? confirmRemoveRole : confirmSave}
                     onCancel={() => setShowModal(false)}
-                    confirmText={modalAction === 'delete' ? 'Delete' : 'Save'}
+                    confirmText={modalAction === 'delete' ? 'Delete' : modalAction === 'removeRole' ? 'Remove Role' : 'Save'}
                     cancelText="Cancel"
                 />
             )}

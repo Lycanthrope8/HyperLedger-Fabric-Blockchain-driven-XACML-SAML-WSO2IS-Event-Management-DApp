@@ -1,5 +1,3 @@
-// xacmlRoutes.js
-
 const express = require('express');
 const router = express.Router();
 const xacmlController = require('../controllers/xacmlController');
@@ -17,5 +15,8 @@ router.get('/getAllPolicies', authorizationMiddleware('read', 'policies'), xacml
 router.get('/getAllUsers', authorizationMiddleware('read', 'roles'), xacmlController.getAllUsers);
 router.post('/getUsersByRole', authorizationMiddleware('read', 'roles'), xacmlController.getUsersByRole);
 router.post('/checkUserExists', authorizationMiddleware('read', 'roles'), xacmlController.checkUserExists);
+
+router.delete('/deleteUser/:username', authorizationMiddleware('delete', 'roles'), xacmlController.deleteUser);
+router.post('/removeRole', authorizationMiddleware('delete', 'roles'), xacmlController.removeRole);
 
 module.exports = router;
