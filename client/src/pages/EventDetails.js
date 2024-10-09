@@ -171,7 +171,7 @@ function EventDetails() {
               </p>
               {!editing && (
                 <button
-                  className="flex items-center gap-2 bg-zinc-400 hover:bg-zinc-400 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all"
+                  className="flex items-center gap-2 bg-[#e74b2d]/50 hover:bg-zinc-400 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all"
                   onClick={() => alert("Ticket purchased successfully.")}
                 >
                   <IoTicketSharp className="text-xl" />
@@ -190,7 +190,7 @@ function EventDetails() {
                   />
                 ) : (
                   <div className="flex items-center text-lg font-semibold">
-                    <FaCalendarDays className="inline mr-2 text-slate-500" />
+                    <FaCalendarDays className="inline mr-2 text-[#e74b2d]/80" />
                     {moment(post.date).format("Do MMM YYYY, HH:mm a")}
                   </div>
                 )}
@@ -206,7 +206,7 @@ function EventDetails() {
                   />
                 ) : (
                   <div className="flex items-center text-lg font-semibold">
-                    <FaLocationDot className="inline mr-2 text-slate-500" />
+                    <FaLocationDot className="inline mr-2 text-[#e74b2d]/80" />
                     {post.location}
                   </div>
                 )}
@@ -262,7 +262,7 @@ function EventDetails() {
         {!editing && (
           <div className="flex space-x-4 mt-4">
             <button
-              className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-zinc-50 font-bold py-2 px-4 rounded transition-all"
+              className={`flex items-center gap-2 border ${!interested ? 'border-[#e74b2d]/80 text-[#e74b2d]' : 'bg-[#e74b2d]/80 text-zinc-50'} hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
               onClick={() => handleInterested()}
             >
               {interested ? (
@@ -273,7 +273,7 @@ function EventDetails() {
               Interested
             </button>
             <button
-              className="flex items-center gap-2 bg-green-700 hover:bg-green-600 text-zinc-50 font-bold py-2 px-4 rounded transition-all"
+              className="flex items-center gap-2 bg-[#e74b2d]/80 hover:bg-[#e74b2d]/90 text-zinc-50 font-bold py-2 px-4 rounded transition-all"
               onClick={() => setGoing(!going)}
             >
               {going ? (
