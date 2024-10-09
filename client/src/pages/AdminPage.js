@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiUsers, FiTool, FiArchive, FiBookOpen, FiCheckSquare, FiLogOut, FiHome } from 'react-icons/fi';
+import { FiUsers, FiTool, FiArchive, FiBookOpen, FiCheckSquare, FiLogOut, FiHome, FiExternalLink } from 'react-icons/fi';
 import { FaDocker } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import UserComponent from '../components/UsersComponent';
@@ -90,6 +90,9 @@ function AdminPage() {
                     )}
                     <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => Navigate("/")}>
                         <FiHome /> Go back Home
+                    </li>
+                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => window.open('http://localhost:8080', '_blank')}>
+                        <FiExternalLink /> Ledger Explorer
                     </li>
                 </ul>
             </div>
