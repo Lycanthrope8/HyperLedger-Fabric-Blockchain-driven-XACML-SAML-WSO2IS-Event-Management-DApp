@@ -42,10 +42,18 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.get('/app/status', (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.json({ authenticated: true });
+  } else {
+    return res.json({ authenticated: false });
+  }
+});
+
 app.use('/', authRoutes);
 app.use('/', userRoutes);
 app.use('/', eventRoutes);
-app.use('/xacml', xacmlRoutes); // Use XACML routes
+app.use('/xacml', xacmlRoutes); 
 app.use('/docker', dockerRoutes);
 app.use('/roles', roleRoutes);
 
