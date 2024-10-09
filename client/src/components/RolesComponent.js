@@ -24,14 +24,19 @@ function RolesComponent() {
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const response = await axios.get('https://localhost:3000/roles', { withCredentials: true });
+                const response = await axios.get('https://localhost:3000/roles', {
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.username}`,
+                    },
+                    withCredentials: true, // Include credentials if necessary
+                });
                 setRoles(response.data);
             } catch (error) {
                 console.error("Failed to fetch roles:", error);
             }
         };
         fetchRoles();
-    }, []);
+    }, [userProfile.username]);
 
     const handleEdit = (role) => {
         setEditRole(role);
@@ -51,7 +56,16 @@ function RolesComponent() {
                     name: newRoleName,
                     description: newRoleDescription
                 };
-                const response = await axios.put(`https://localhost:3000/roles/${editRole._id}`, updatedRole);
+                const response = await axios.put(
+                    `https://localhost:3000/roles/${editRole._id}`,
+                    updatedRole,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${userProfile.username}`,
+                        },
+                        withCredentials: true, // Include credentials if necessary
+                    }
+                );
                 setRoles(roles.map(role => role._id === editRole._id ? response.data : role));
                 resetForm();
                 setShowUpdateModal(false);
@@ -70,7 +84,15 @@ function RolesComponent() {
     const confirmDelete = async () => {
         if (roleToDelete) {
             try {
-                await axios.delete(`https://localhost:3000/roles/${roleToDelete}`, { withCredentials: true });
+                await axios.delete(
+                    `https://localhost:3000/roles/${roleToDelete}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${userProfile.username}`,
+                        },
+                        withCredentials: true, // Include credentials if necessary
+                    }
+                );
                 setRoles(roles.filter(role => role._id !== roleToDelete));
                 setShowModal(false);
             } catch (error) {
@@ -86,7 +108,16 @@ function RolesComponent() {
                 description: newRoleDescription,
             };
             try {
-                const response = await axios.post('https://localhost:3000/roles', newRole, { withCredentials: true });
+                const response = await axios.post(
+                    'https://localhost:3000/roles',
+                    newRole,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${userProfile.username}`,
+                        },
+                        withCredentials: true, // Include credentials if necessary
+                    }
+                );
                 setRoles([...roles, response.data]);
                 resetForm();
             } catch (error) {

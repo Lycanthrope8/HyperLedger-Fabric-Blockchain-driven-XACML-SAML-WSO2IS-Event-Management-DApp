@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useUser } from '../contexts/UserContext';
 
 function TestComponent() {
     const [subject, setSubject] = useState('');
     const [action, setAction] = useState('');
     const [resource, setResource] = useState('');
     const [response, setResponse] = useState(null);
+    const { userProfile } = useUser();
 
     const handleEvaluateRequest = async () => {
         try {
-            const result = await axios.post('https://localhost:3000/xacml/evaluate', {
-                subject: subject,
-                action: action,
-                resource: resource
-            });
+            const result = await axios.post(
+                'https://localhost:3000/xacml/evaluate', 
+                {
+                    subject: subject,
+                    action: action,
+                    resource: resource
+                }, 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.username}`,  // Pass the username in the header
+                    },
+                    withCredentials: true // Optional, if you need credentials
+                }
+            );
 
             setResponse({
                 status: result.data,
@@ -71,6 +82,7 @@ function TestComponent() {
             {response && (
                 <div className={`border p-4 rounded-lg ${response.status === 'Permit' ? 'border-green-500' : 'border-red-500'} bg-[#202124]`}>
                     <p><strong>Decision:</strong> {response.status}</p>
+                    <p><strong>Message:</strong> {response.message}</p>
                 </div>
             )}
         </div>

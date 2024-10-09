@@ -1,55 +1,30 @@
 const express = require('express');
-const Docker = require('dockerode');
 const router = express.Router();
-const docker = new Docker();
+const dockerController = require('../controllers/dockerController'); // Import the controller
+const authorizationMiddleware = require('../middleware/authorizationMiddleware'); // Import the middleware
 
-router.get('/containers', async (req, res) => {
-    try {
-        const containers = await docker.listContainers();
-        res.json(containers);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// Get all containers
+router.get('/containers', 
+    authorizationMiddleware('read', 'containers'), 
+    dockerController.getAllContainers
+);
 
-router.get('/peers', async (req, res) => {
-    try {
-        const containers = await docker.listContainers({
-            filters: { name: ['peer'] }
-        });
-        res.json(containers);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// Get peer containers
+router.get('/peers', 
+    authorizationMiddleware('read', 'peers'), 
+    dockerController.getPeerContainers
+);
 
+// Get logs of a specific container by ID
+router.get('/containers/:id/logs', 
+    authorizationMiddleware('read', 'logs'), 
+    dockerController.getContainerLogs
+);
 
-router.get('/containers/:id/logs', async (req, res) => {
-    const containerId = req.params.id;
-    try {
-        const container = docker.getContainer(containerId);
-        const logs = await container.logs({
-            stdout: true,
-            stderr: true,
-            follow: false,
-            tail: 100
-        });
-        res.json(logs.toString());
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch logs' });
-    }
-});
-
-
-router.post('/containers/:id/stop', async (req, res) => {
-    const containerId = req.params.id;
-    try {
-        const container = docker.getContainer(containerId);
-        await container.stop();
-        res.json({ message: `Container ${containerId} stopped successfully` });
-    } catch (error) {
-        res.status(500).json({ error: `Failed to stop container ${containerId}` });
-    }
-});
+// Stop a container by ID
+router.post('/containers/:id/stop', 
+    authorizationMiddleware('write', 'containers'), 
+    dockerController.stopContainer
+);
 
 module.exports = router;

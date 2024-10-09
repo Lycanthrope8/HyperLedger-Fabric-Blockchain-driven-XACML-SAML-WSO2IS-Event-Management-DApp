@@ -1,8 +1,7 @@
-// controllers/roleController.js
 const Role = require('../models/roleModel');
 
 // Get all roles
-exports.getAllRoles = async (req, res) => {
+const getAllRoles = async (req, res) => {
     try {
         const roles = await Role.find();
         res.status(200).json(roles);
@@ -12,7 +11,7 @@ exports.getAllRoles = async (req, res) => {
 };
 
 // Get a specific role by ID
-exports.getRoleById = async (req, res) => {
+const getRoleById = async (req, res) => {
     try {
         const role = await Role.findById(req.params.id);
         if (!role) {
@@ -25,7 +24,7 @@ exports.getRoleById = async (req, res) => {
 };
 
 // Create a new role
-exports.createRole = async (req, res) => {
+const createRole = async (req, res) => {
     try {
         const { name, description } = req.body;
 
@@ -44,7 +43,7 @@ exports.createRole = async (req, res) => {
 };
 
 // Update an existing role
-exports.updateRole = async (req, res) => {
+const updateRole = async (req, res) => {
     try {
         const { name, description } = req.body;
         const updatedRole = await Role.findByIdAndUpdate(
@@ -62,7 +61,7 @@ exports.updateRole = async (req, res) => {
 };
 
 // Delete a role
-exports.deleteRole = async (req, res) => {
+const deleteRole = async (req, res) => {
     try {
         const deletedRole = await Role.findByIdAndDelete(req.params.id);
         if (!deletedRole) {
@@ -72,4 +71,13 @@ exports.deleteRole = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error deleting role', error });
     }
+};
+
+// Export all the controller functions together
+module.exports = {
+    getAllRoles,
+    getRoleById,
+    createRole,
+    updateRole,
+    deleteRole,
 };

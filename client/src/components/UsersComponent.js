@@ -23,12 +23,24 @@ function UserComponent() {
     useEffect(() => {
         const fetchUsersAndRoles = async () => {
             try {
-                const usersResponse = await axios.get('https://localhost:3000/xacml/getAllUsers');
+                const usersResponse = await axios.get('https://localhost:3000/xacml/getAllUsers', {
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.username}`,  // Pass the username in the header
+                    },
+                    withCredentials: true, // Include credentials if necessary
+                });
+    
                 if (Array.isArray(usersResponse.data)) {
                     setUsers(usersResponse.data);
                 }
-
-                const rolesResponse = await axios.get('https://localhost:3000/roles');
+    
+                const rolesResponse = await axios.get('https://localhost:3000/roles', {
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.username}`,  // Pass the username in the header
+                    },
+                    withCredentials: true, // Include credentials if necessary
+                });
+    
                 if (Array.isArray(rolesResponse.data)) {
                     setRolesOptions(rolesResponse.data.map(role => ({ value: role.name, label: role.name })));
                 }
@@ -37,7 +49,8 @@ function UserComponent() {
             }
         };
         fetchUsersAndRoles();
-    }, []);
+    }, [userProfile]);
+    
 
     const handleEdit = (user) => {
         setEditUser(user);
@@ -65,6 +78,11 @@ function UserComponent() {
                 const response = await axios.post('https://localhost:3000/xacml/setRole', {
                     username: editUser.username,
                     roles: role,
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.username}`,
+                    },
+                    withCredentials: true, // Include credentials if necessary
                 });
 
                 if (response.status !== 200) {
@@ -92,7 +110,12 @@ function UserComponent() {
     const confirmDelete = async () => {
         setShowModal(false);
         try {
-            await axios.delete(`https://localhost:3000/xacml/deleteUser/${userToModify}`);
+            await axios.delete(`https://localhost:3000/xacml/deleteUser/${userToModify}`, {
+                headers: {
+                    'Authorization': `Bearer ${userProfile.username}`,
+                },
+                withCredentials: true, // Include credentials if necessary
+            });
             setUsers(users.filter(user => user.username !== userToModify));
         } catch (error) {
             console.error('Failed to delete user:', error);

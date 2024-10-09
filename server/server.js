@@ -49,6 +49,13 @@ app.use('/xacml', xacmlRoutes); // Use XACML routes
 app.use('/docker', dockerRoutes);
 app.use('/roles', roleRoutes);
 
+const authorizationMiddleware = require('./middleware/authorizationMiddleware');
+
+// Create a test route to use the middleware
+app.get('/test-middleware', authorizationMiddleware(), (req, res) => {
+    res.send('Middleware test completed.');
+});
+
 
 // MONGOOSE CONNECTION
 mongoose.connect(process.env.MONGO_URI).then(() => {

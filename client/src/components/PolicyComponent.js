@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import useAuthorization from '../hooks/useAuthorization';
 import { useUser } from '../contexts/UserContext';
@@ -17,27 +17,43 @@ function PolicyTesterComponent() {
     const { isAuthorized: canAddPolicy, loading: loadingAddPolicy } = useAuthorization(userProfile.username, 'write', 'policy');
     const { isAuthorized: canGetPolicies, loading: loadingGetPolicies } = useAuthorization(userProfile.username, 'read', 'policy');
 
+    // Handle adding a policy
     const handleAddPolicySubmit = async (event) => {
         event.preventDefault();
         setError(null);
         setAddPolicyResult(null);
 
         try {
-            const res = await axios.post('https://localhost:3000/xacml/addPolicy', { policyId, policyXml });
+            const res = await axios.post(
+                'https://localhost:3000/xacml/addPolicy',
+                { policyId, policyXml },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.username}`,
+                    },
+                    withCredentials: true, // Optional, depending on if your server requires credentials
+                }
+            );
             setAddPolicyResult(res.data);
             setShowToast(true);
-            setTimeout(() => setShowToast(false), 3000);
+            setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
         } catch (err) {
             setError('Failed to add policy. Please try again.');
         }
     };
 
+    // Handle fetching all policies
     const handleGetAllPolicies = async () => {
         setError(null);
         setAllPolicies(null);
 
         try {
-            const res = await axios.get('https://localhost:3000/xacml/getAllPolicies');
+            const res = await axios.get('https://localhost:3000/xacml/getAllPolicies', {
+                headers: {
+                    'Authorization': `Bearer ${userProfile.username}`,
+                },
+                withCredentials: true, // Optional
+            });
             setAllPolicies(res.data);
         } catch (err) {
             setError('Failed to fetch policies. Please try again.');
@@ -94,11 +110,11 @@ function PolicyTesterComponent() {
                 </div>
             )}
 
-            {allPolicies && (
+            {allPolicies && allPolicies.length > 0 ? (
                 <div className="mt-4 p-4 border border-zinc-700 rounded-lg">
                     <h2 className="text-lg font-bold mb-2 text-zinc-50">Select a Policy</h2>
                     <select
-                        className="shadow appearance-none bg-[#292a2d] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline "
+                        className="shadow appearance-none bg-[#292a2d] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline"
                         onChange={(e) => {
                             const selectedPolicy = allPolicies.find(policy => policy.Key === e.target.value);
                             setPolicyXml(selectedPolicy ? selectedPolicy.Record : '');
@@ -112,7 +128,9 @@ function PolicyTesterComponent() {
                         ))}
                     </select>
                 </div>
-            )}
+            ) : allPolicies === null ? (
+                <p className="text-zinc-50">No policies found.</p>
+            ) : null}
 
             {policyXml && (
                 <div className="mt-4 p-4 bg-[#292a2d] rounded-lg">

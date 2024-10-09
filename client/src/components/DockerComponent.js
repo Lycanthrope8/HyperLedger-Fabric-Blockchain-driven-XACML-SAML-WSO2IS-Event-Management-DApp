@@ -1,40 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useUser } from '../contexts/UserContext';  // Assuming you have a user context for getting the user profile
 
 const DockerComponent = () => {
     const [containers, setContainers] = useState([]);
     const [logs, setLogs] = useState({});
     const [loading, setLoading] = useState(false);
+    const [logLoading, setLogLoading] = useState(false);  // Separate loading state for logs
     const [modalVisible, setModalVisible] = useState(false);
     const [currentLogContainer, setCurrentLogContainer] = useState(null);
+
+    const { userProfile } = useUser(); // Get user profile from context
 
     useEffect(() => {
         const fetchContainers = async () => {
             try {
-                const response = await axios.get('https://localhost:3000/docker/containers');
+                const response = await axios.get('https://localhost:3000/docker/containers', {
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.username}`,  // Send username in header
+                    },
+                });
                 setContainers(response.data);
             } catch (error) {
                 console.error('Failed to fetch containers:', error);
             }
         };
         fetchContainers();
-    }, []);
+    }, [userProfile]);
 
     const fetchLogs = async (containerId) => {
+        setLogLoading(true);
         try {
-            const response = await axios.get(`https://localhost:3000/docker/containers/${containerId}/logs`);
+            const response = await axios.get(`https://localhost:3000/docker/containers/${containerId}/logs`, {
+                headers: {
+                    'Authorization': `Bearer ${userProfile.username}`,  // Send username in header
+                },
+            });
             setLogs((prevLogs) => ({ ...prevLogs, [containerId]: response.data }));
             setCurrentLogContainer(containerId);
             setModalVisible(true);
         } catch (error) {
             console.error(`Failed to fetch logs for container ${containerId}:`, error);
+        } finally {
+            setLogLoading(false);
         }
     };
 
     const stopContainer = async (containerId) => {
         setLoading(true);
         try {
-            await axios.post(`https://localhost:3000/docker/containers/${containerId}/stop`);
+            await axios.post(`https://localhost:3000/docker/containers/${containerId}/stop`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${userProfile.username}`,  // Send username in header
+                },
+            });
             setContainers((prevContainers) => prevContainers.filter((container) => container.Id !== containerId));
         } catch (error) {
             console.error(`Failed to stop container ${containerId}:`, error);
@@ -84,15 +103,16 @@ const DockerComponent = () => {
                             <button
                                 className='bg-[#5e6ad2] text-white p-2 rounded shadow hover:bg-[#4b59ba] transition'
                                 onClick={() => fetchLogs(container.Id)}
+                                disabled={logLoading}
                             >
-                                View Logs
+                                {logLoading ? 'Fetching Logs...' : 'View Logs'}
                             </button>
                             <button
                                 className='bg-[#ea4335] text-white p-2 rounded shadow hover:bg-[#d93025] transition'
                                 onClick={() => stopContainer(container.Id)}
                                 disabled={loading}
                             >
-                                Stop
+                                {loading ? 'Stopping...' : 'Stop'}
                             </button>
                         </div>
                     </div>
