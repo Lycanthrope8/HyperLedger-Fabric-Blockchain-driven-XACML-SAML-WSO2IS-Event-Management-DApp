@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { TbEdit, TbTrash } from "react-icons/tb";
 import Select from 'react-select';
+import { useUser } from "../contexts/UserContext";
+import useAuthorization from '../hooks/useAuthorization';
 
 function UserComponent() {
     const [users, setUsers] = useState([]);
@@ -9,6 +11,11 @@ function UserComponent() {
     const [editUser, setEditUser] = useState(null);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [newRole, setNewRole] = useState(''); // State for the new role
+
+    const { userProfile } = useUser();
+    // Authorization hooks for delete and save actions
+    const { isAuthorized: canDelete, loading: loadingDelete } = useAuthorization(userProfile.username, 'delete', 'roles');
+    const { isAuthorized: canSave, loading: loadingSave } = useAuthorization(userProfile.username, 'update', 'roles');
 
     useEffect(() => {
         const fetchUsersAndRoles = async () => {
@@ -33,6 +40,8 @@ function UserComponent() {
         setEditUser(user);
         const userRoles = user.role ? user.role.map(r => ({ value: r, label: r })) : [];
         setSelectedRoles(userRoles);
+
+        console.log('Editing user:', user);
 
         // Filter out roles that the user already has
         const availableRoles = rolesOptions.filter(
@@ -78,6 +87,7 @@ function UserComponent() {
 
     const handleDelete = async (username) => {
         try {
+            console.log('Deleting user:', username); // Debugging delete action
             await axios.delete(`https://localhost:3000/xacml/deleteUser/${username}`);
             setUsers(users.filter(user => user.username !== username));
         } catch (error) {
@@ -91,6 +101,7 @@ function UserComponent() {
             if (!selectedRoles.find(role => role.value === newRole.trim())) {
                 setSelectedRoles([...selectedRoles, newRoleOption]);
             }
+            console.log('Added new role:', newRoleOption); // Debugging new role addition
             setNewRole(''); // Reset the input field
         }
     };
@@ -145,9 +156,12 @@ function UserComponent() {
                                         <button className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105" onClick={() => handleEdit(user)}>
                                             <TbEdit className="text-2xl" />
                                         </button>
-                                        <button className="bg-[#6d2b2b] text-zinc-50 py-1 px-3 rounded hover:brightness-105 ml-2" onClick={() => handleDelete(user.username)}>
-                                            <TbTrash className="text-2xl" />
-                                        </button>
+
+                                        {!loadingDelete && canDelete && (
+                                            <button className="bg-[#6d2b2b] text-zinc-50 py-1 px-3 rounded hover:brightness-105 ml-2" onClick={() => handleDelete(user.username)}>
+                                                <TbTrash className="text-2xl" />
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             ))
@@ -183,9 +197,12 @@ function UserComponent() {
                             Add Role
                         </button>
                     </div>
-                    <button className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105 mt-4" onClick={handleSave}>
-                        Save
-                    </button>
+
+                    {!loadingSave && canSave && (
+                        <button className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105 mt-4" onClick={handleSave}>
+                            Save
+                        </button>
+                    )}
                     <button className="bg-[#6d2b2b] text-zinc-50 py-1 px-3 rounded hover:brightness-105 ml-2 mt-4" onClick={() => setEditUser(null)}>
                         Cancel
                     </button>

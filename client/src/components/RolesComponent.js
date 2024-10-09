@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TbEdit, TbTrash } from "react-icons/tb";
 import axios from 'axios';
+import useAuthorization from '../hooks/useAuthorization';
+import { useUser } from "../contexts/UserContext";
 
 function RolesComponent() {
     const [roles, setRoles] = useState([]); // Initialize empty state for roles
@@ -8,6 +10,13 @@ function RolesComponent() {
     const [newRoleDescription, setNewRoleDescription] = useState(''); // State to store the new role's description
     const [isAddingRole, setIsAddingRole] = useState(false); // State to track if adding a new role
     const [editRole, setEditRole] = useState(null); // State to track if editing a role
+
+    const { userProfile } = useUser(); // Get user profile from context
+
+    // Authorization hooks for actions
+    const { isAuthorized: canCreate, loading: loadingCreate } = useAuthorization(userProfile.username, 'write', 'roles');
+    const { isAuthorized: canUpdate, loading: loadingUpdate } = useAuthorization(userProfile.username, 'update', 'roles');
+    const { isAuthorized: canDelete, loading: loadingDelete } = useAuthorization(userProfile.username, 'delete', 'roles');
 
     // Fetch roles from the API
     useEffect(() => {
@@ -91,9 +100,11 @@ function RolesComponent() {
             <div className="bg-[#202124] p-4 rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-bold text-zinc-50">Roles</h2>
-                    <button onClick={toggleAddRole} className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 hover:brightness-105">
-                        {isAddingRole ? 'Cancel' : 'Add Role'}
-                    </button>
+                    {!loadingCreate && canCreate && (
+                        <button onClick={toggleAddRole} className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 hover:brightness-105">
+                            {isAddingRole ? 'Cancel' : 'Add Role'}
+                        </button>
+                    )}
                 </div>
                 <table className="min-w-full text-zinc-50">
                     <thead>
@@ -111,12 +122,16 @@ function RolesComponent() {
                                 <td className="border px-4 py-2">{role.name}</td>
                                 <td className="border px-4 py-2">{role.description}</td>
                                 <td className="border px-4 py-2 flex justify-evenly">
-                                    <button onClick={() => handleEdit(role)} className="bg-[#5c5470] py-1 px-3 rounded hover:brightness-105">
-                                        <TbEdit className='text-2xl' />
-                                    </button>
-                                    <button onClick={() => handleDelete(role._id)} className="bg-[#6d2b2b] py-1 px-3 rounded hover:brightness-105">
-                                        <TbTrash className='text-2xl' />
-                                    </button>
+                                    {!loadingUpdate && canUpdate && (
+                                        <button onClick={() => handleEdit(role)} className="bg-[#5c5470] py-1 px-3 rounded hover:brightness-105">
+                                            <TbEdit className='text-2xl' />
+                                        </button>
+                                    )}
+                                    {!loadingDelete && canDelete && (
+                                        <button onClick={() => handleDelete(role._id)} className="bg-[#6d2b2b] py-1 px-3 rounded hover:brightness-105">
+                                            <TbTrash className='text-2xl' />
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         )) : (
@@ -146,12 +161,14 @@ function RolesComponent() {
                         placeholder="Enter role description"
                         className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 w-full mb-2"
                     />
-                    <button
-                        onClick={editRole ? handleUpdateRole : handleAddRole}
-                        className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 hover:brightness-105"
-                    >
-                        {editRole ? 'Update Role' : 'Save Role'}
-                    </button>
+                    {!loadingCreate && canCreate && (
+                        <button
+                            onClick={editRole ? handleUpdateRole : handleAddRole}
+                            className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 hover:brightness-105"
+                        >
+                            {editRole ? 'Update Role' : 'Save Role'}
+                        </button>
+                    )}
                 </div>
             )}
         </div>
