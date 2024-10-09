@@ -12,12 +12,12 @@
 
 7. "server/lib/app.js" needs a delete user function
 
-8. (fixed) https://localhost:3000/roles can be accessed even if logged out
+8. (Fixed) https://localhost:3000/roles can be accessed even if logged out
 
-9. (fixed) https://localhost:3000/events can be accessed even if logged out
+9. (Fixed) https://localhost:3000/events can be accessed even if logged out
 
-10. (fixed) Some others links might be accessed staying logged out
+10. (Fixed) Some others links might be accessed staying logged out
 
-11. (fixed) "Policy Added Successfully" should be shown on top of the screen
+11. (Fixed) "Policy Added Successfully" should be shown on top of the screen
 
-12. (fixed) Loaders could be added while setting roles.
+12. (Fixed) Loaders could be added while setting roles.

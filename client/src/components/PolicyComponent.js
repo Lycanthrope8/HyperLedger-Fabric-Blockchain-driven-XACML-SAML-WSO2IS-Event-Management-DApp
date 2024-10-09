@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import useAuthorization from '../hooks/useAuthorization';
 import { useUser } from '../contexts/UserContext';
 
 function PolicyTesterComponent() {
     const [policyId, setPolicyId] = useState('');
     const [policyXml, setPolicyXml] = useState('');
-    const [evaluationResult, setEvaluationResult] = useState(null);
-    const [addPolicyResult, setAddPolicyResult] = useState(null);
     const [allPolicies, setAllPolicies] = useState(null);
     const [error, setError] = useState(null);
-    const [showToast, setShowToast] = useState(false);
 
     const { userProfile } = useUser();
 
@@ -21,7 +20,6 @@ function PolicyTesterComponent() {
     const handleAddPolicySubmit = async (event) => {
         event.preventDefault();
         setError(null);
-        setAddPolicyResult(null);
 
         try {
             const res = await axios.post(
@@ -34,11 +32,16 @@ function PolicyTesterComponent() {
                     withCredentials: true, // Optional, depending on if your server requires credentials
                 }
             );
-            setAddPolicyResult(res.data);
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+            toast.success('Policy added successfully!', {
+                className: 'toast-success',
+                bodyClassName: 'toast-body',
+            });
         } catch (err) {
             setError('Failed to add policy. Please try again.');
+            toast.error('Failed to add policy. Please try again.', {
+                className: 'toast-error',
+                bodyClassName: 'toast-body',
+            });
         }
     };
 
@@ -63,6 +66,19 @@ function PolicyTesterComponent() {
     return (
         <div className="p-4 bg-[#202124] rounded-lg relative">
             <h1 className="text-xl font-bold mb-4 text-zinc-50">Policy Tester</h1>
+
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+            />
 
             {!loadingAddPolicy && canAddPolicy && (
                 <form onSubmit={handleAddPolicySubmit} className="mb-6">
@@ -137,20 +153,6 @@ function PolicyTesterComponent() {
                     <h2 className="text-xl font-bold mb-2 text-zinc-300">Policy Record</h2>
                     <hr className="my-4 border-zinc-700" />
                     <pre className="text-zinc-300 whitespace-pre-wrap">{policyXml}</pre>
-                </div>
-            )}
-
-            {evaluationResult && (
-                <div className="mt-4 p-4 bg-green-200 rounded-lg">
-                    <h2 className="text-lg font-bold mb-2 text-green-800">Evaluation Result</h2>
-                    <pre className="text-green-800 whitespace-pre-wrap">{JSON.stringify(evaluationResult, null, 2)}</pre>
-                </div>
-            )}
-
-            {showToast && addPolicyResult && (
-                <div className="absolute top-4 right-4 p-4 bg-blue-200 rounded-lg shadow-lg">
-                    <h2 className="text-lg font-bold mb-2 text-blue-800">Add Policy Result</h2>
-                    <p className="text-blue-800">{addPolicyResult}</p>
                 </div>
             )}
 

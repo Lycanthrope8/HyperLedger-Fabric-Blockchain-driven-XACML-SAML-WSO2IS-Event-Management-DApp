@@ -5,6 +5,7 @@ import Select from 'react-select';
 import { useUser } from "../contexts/UserContext";
 import useAuthorization from '../hooks/useAuthorization';
 import ConfirmModalComponent from './confirmModalComponent';
+import { Bouncy } from 'ldrs'; // Import the Bouncy from ldrs
 
 function UserComponent() {
     const [users, setUsers] = useState([]);
@@ -15,6 +16,8 @@ function UserComponent() {
     const [showModal, setShowModal] = useState(false);
     const [modalAction, setModalAction] = useState('');
     const [userToModify, setUserToModify] = useState(null);
+    const [isLoadingSave, setIsLoadingSave] = useState(false); // Loading state for save
+    const [isLoadingDelete, setIsLoadingDelete] = useState(false); // Loading state for delete
 
     const { userProfile } = useUser();
     const { isAuthorized: canDelete, loading: loadingDelete } = useAuthorization(userProfile.username, 'delete', 'roles');
@@ -70,6 +73,7 @@ function UserComponent() {
     };
 
     const confirmSave = async () => {
+        setIsLoadingSave(true); // Start loading
         setShowModal(false);
         try {
             const rolesToSave = selectedRoles.map(option => option.value);
@@ -98,6 +102,8 @@ function UserComponent() {
             setSelectedRoles([]);
         } catch (error) {
             console.error('Failed to update user roles:', error);
+        } finally {
+            setIsLoadingSave(false); // End loading
         }
     };
 
@@ -108,6 +114,7 @@ function UserComponent() {
     };
 
     const confirmDelete = async () => {
+        setIsLoadingDelete(true); // Start loading
         setShowModal(false);
         try {
             await axios.delete(`https://localhost:3000/xacml/deleteUser/${userToModify}`, {
@@ -119,6 +126,8 @@ function UserComponent() {
             setUsers(users.filter(user => user.username !== userToModify));
         } catch (error) {
             console.error('Failed to delete user:', error);
+        } finally {
+            setIsLoadingDelete(false); // End loading
         }
     };
 
@@ -244,6 +253,16 @@ function UserComponent() {
                     confirmText={modalAction === 'delete' ? 'Delete' : 'Save'}
                     cancelText="Cancel"
                 />
+            )}
+
+            {(isLoadingSave || isLoadingDelete) && (
+                <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
+                    <l-bouncy
+                        size="45"
+                        speed="1.75"
+                        color="white"
+                    ></l-bouncy>
+                </div>
             )}
         </div>
     );
