@@ -4,16 +4,19 @@ import { TbEdit, TbTrash } from "react-icons/tb";
 import Select from 'react-select';
 import { useUser } from "../contexts/UserContext";
 import useAuthorization from '../hooks/useAuthorization';
+import ConfirmModalComponent from './confirmModalComponent';
 
 function UserComponent() {
     const [users, setUsers] = useState([]);
     const [rolesOptions, setRolesOptions] = useState([]);
     const [editUser, setEditUser] = useState(null);
     const [selectedRoles, setSelectedRoles] = useState([]);
-    const [newRole, setNewRole] = useState(''); // State for the new role
+    const [newRole, setNewRole] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [modalAction, setModalAction] = useState('');
+    const [userToModify, setUserToModify] = useState(null);
 
     const { userProfile } = useUser();
-    // Authorization hooks for delete and save actions
     const { isAuthorized: canDelete, loading: loadingDelete } = useAuthorization(userProfile.username, 'delete', 'roles');
     const { isAuthorized: canSave, loading: loadingSave } = useAuthorization(userProfile.username, 'update', 'roles');
 
@@ -41,8 +44,6 @@ function UserComponent() {
         const userRoles = user.role ? user.role.map(r => ({ value: r, label: r })) : [];
         setSelectedRoles(userRoles);
 
-        console.log('Editing user:', user);
-
         // Filter out roles that the user already has
         const availableRoles = rolesOptions.filter(
             (roleOption) => !userRoles.find(userRole => userRole.value === roleOption.value)
@@ -50,34 +51,31 @@ function UserComponent() {
         setRolesOptions(availableRoles);
     };
 
-    const handleSave = async () => {
+    const handleSave = () => {
+        setModalAction('save');
+        setShowModal(true);
+    };
+
+    const confirmSave = async () => {
+        setShowModal(false);
         try {
             const rolesToSave = selectedRoles.map(option => option.value);
-            console.log('Roles to save:', rolesToSave); // Debugging roles
 
-            // Iterate over each selected role and send a POST request one by one
             for (const role of rolesToSave) {
                 const response = await axios.post('https://localhost:3000/xacml/setRole', {
                     username: editUser.username,
-                    roles: role,  // Send one role at a time
+                    roles: role,
                 });
-
-                console.log('Response from server:', response.data); // Debugging response
 
                 if (response.status !== 200) {
                     throw new Error(`Failed to save role: ${role}`);
                 }
             }
 
-            // Update the user in the users list with the new roles
-            const updatedUsers = users.map(user => 
+            const updatedUsers = users.map(user =>
                 user.username === editUser.username ? { ...user, role: rolesToSave } : user
             );
             setUsers(updatedUsers);
-
-            console.log('Updated users:', updatedUsers); // Debugging users update
-
-            // Reset the form and clear the edit state
             setEditUser(null);
             setSelectedRoles([]);
         } catch (error) {
@@ -85,11 +83,17 @@ function UserComponent() {
         }
     };
 
-    const handleDelete = async (username) => {
+    const handleDelete = (username) => {
+        setUserToModify(username);
+        setModalAction('delete');
+        setShowModal(true);
+    };
+
+    const confirmDelete = async () => {
+        setShowModal(false);
         try {
-            console.log('Deleting user:', username); // Debugging delete action
-            await axios.delete(`https://localhost:3000/xacml/deleteUser/${username}`);
-            setUsers(users.filter(user => user.username !== username));
+            await axios.delete(`https://localhost:3000/xacml/deleteUser/${userToModify}`);
+            setUsers(users.filter(user => user.username !== userToModify));
         } catch (error) {
             console.error('Failed to delete user:', error);
         }
@@ -101,8 +105,7 @@ function UserComponent() {
             if (!selectedRoles.find(role => role.value === newRole.trim())) {
                 setSelectedRoles([...selectedRoles, newRoleOption]);
             }
-            console.log('Added new role:', newRoleOption); // Debugging new role addition
-            setNewRole(''); // Reset the input field
+            setNewRole('');
         }
     };
 
@@ -138,7 +141,7 @@ function UserComponent() {
             <h1 className="text-xl font-bold mb-4 text-zinc-50">User Management</h1>
             <div className="bg-[#202124] p-4 rounded-lg">
                 <h2 className="text-lg font-bold mb-3 text-zinc-50">Current Users</h2>
-                <table className="min-w-full text-zinc-50">
+                <table className="min-w-full text-zinc-50 border-zinc-400">
                     <thead>
                         <tr>
                             <th className="px-4 py-2">Username</th>
@@ -149,10 +152,10 @@ function UserComponent() {
                     <tbody>
                         {users.length > 0 ? (
                             users.map((user, index) => (
-                                <tr key={index}>
-                                    <td className="border px-4 py-2">{user.username || 'Unknown'}</td>
-                                    <td className="border px-4 py-2">{user.role ? user.role.join(', ') : 'No role'}</td>
-                                    <td className="border px-4 py-2 flex justify-evenly">
+                                <tr key={index} className='border border-zinc-500'>
+                                    <td className="border-r border-zinc-500 px-4 py-2">{user.username || 'Unknown'}</td>
+                                    <td className="border-r border-zinc-500 px-4 py-2">{user.role ? user.role.join(', ') : 'No role'}</td>
+                                    <td className="px-4 py-2 flex justify-evenly">
                                         <button className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105" onClick={() => handleEdit(user)}>
                                             <TbEdit className="text-2xl" />
                                         </button>
@@ -191,7 +194,7 @@ function UserComponent() {
                             value={newRole}
                             onChange={(e) => setNewRole(e.target.value)}
                             placeholder="Enter a new role"
-                            className="bg-[#444444] text-zinc-50 px-3 py-2 rounded-md mr-2"
+                            className="bg-[#292a2d] text-zinc-50 px-3 py-2 rounded-md mr-2"
                         />
                         <button onClick={handleAddNewRole} className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105">
                             Add Role
@@ -207,6 +210,17 @@ function UserComponent() {
                         Cancel
                     </button>
                 </div>
+            )}
+
+            {showModal && (
+                <ConfirmModalComponent
+                    title={modalAction === 'delete' ? 'Confirm Delete' : 'Confirm Save'}
+                    message={modalAction === 'delete' ? 'Are you sure you want to delete this user?' : 'Do you want to save the changes?'}
+                    onConfirm={modalAction === 'delete' ? confirmDelete : confirmSave}
+                    onCancel={() => setShowModal(false)}
+                    confirmText={modalAction === 'delete' ? 'Delete' : 'Save'}
+                    cancelText="Cancel"
+                />
             )}
         </div>
     );

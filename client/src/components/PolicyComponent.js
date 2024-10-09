@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import useAuthorization from '../hooks/useAuthorization'; // Import useAuthorization hook
-import { useUser } from '../contexts/UserContext'; // Assuming you have user context
+import useAuthorization from '../hooks/useAuthorization';
+import { useUser } from '../contexts/UserContext';
 
 function PolicyTesterComponent() {
     const [policyId, setPolicyId] = useState('');
@@ -10,10 +10,10 @@ function PolicyTesterComponent() {
     const [addPolicyResult, setAddPolicyResult] = useState(null);
     const [allPolicies, setAllPolicies] = useState(null);
     const [error, setError] = useState(null);
+    const [showToast, setShowToast] = useState(false);
 
-    const { userProfile } = useUser(); // Fetch user profile from the context
+    const { userProfile } = useUser();
 
-    // Authorization hooks for adding and getting policies
     const { isAuthorized: canAddPolicy, loading: loadingAddPolicy } = useAuthorization(userProfile.username, 'write', 'policy');
     const { isAuthorized: canGetPolicies, loading: loadingGetPolicies } = useAuthorization(userProfile.username, 'read', 'policy');
 
@@ -25,6 +25,8 @@ function PolicyTesterComponent() {
         try {
             const res = await axios.post('https://localhost:3000/xacml/addPolicy', { policyId, policyXml });
             setAddPolicyResult(res.data);
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 3000);
         } catch (err) {
             setError('Failed to add policy. Please try again.');
         }
@@ -43,7 +45,7 @@ function PolicyTesterComponent() {
     };
 
     return (
-        <div className="p-4">
+        <div className="p-4 bg-[#202124] rounded-lg relative">
             <h1 className="text-xl font-bold mb-4 text-zinc-50">Policy Tester</h1>
 
             {!loadingAddPolicy && canAddPolicy && (
@@ -54,7 +56,7 @@ function PolicyTesterComponent() {
                         <input
                             id="policyId"
                             name="policyId"
-                            className="shadow appearance-none bg-[#5c5470] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline"
+                            className="shadow appearance-none bg-[#292a2d] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline"
                             placeholder="Enter the policy ID..."
                             value={policyId}
                             onChange={(e) => setPolicyId(e.target.value)}
@@ -65,7 +67,7 @@ function PolicyTesterComponent() {
                         <textarea
                             id="policyXmlAdd"
                             name="policyXmlAdd"
-                            className="shadow appearance-none bg-[#5c5470] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline"
+                            className="shadow appearance-none bg-[#292a2d] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline"
                             placeholder="Enter the policy XML to add..."
                             value={policyXml}
                             onChange={(e) => setPolicyXml(e.target.value)}
@@ -74,7 +76,7 @@ function PolicyTesterComponent() {
                     </div>
                     <button
                         type="submit"
-                        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="bg-[#e74b2d]/80 hover:bg-[#e74b2d]/70 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                         Add Policy
                     </button>
@@ -85,7 +87,7 @@ function PolicyTesterComponent() {
                 <div className="mb-6">
                     <button
                         onClick={handleGetAllPolicies}
-                        className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                         Get All Policies
                     </button>
@@ -93,10 +95,10 @@ function PolicyTesterComponent() {
             )}
 
             {allPolicies && (
-                <div className="mt-4 p-4 border rounded-lg">
+                <div className="mt-4 p-4 border border-zinc-700 rounded-lg">
                     <h2 className="text-lg font-bold mb-2 text-zinc-50">Select a Policy</h2>
                     <select
-                        className="shadow appearance-none bg-[#5c5470] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none bg-[#292a2d] rounded w-full py-2 px-3 text-zinc-50 leading-tight focus:outline-none focus:shadow-outline "
                         onChange={(e) => {
                             const selectedPolicy = allPolicies.find(policy => policy.Key === e.target.value);
                             setPolicyXml(selectedPolicy ? selectedPolicy.Record : '');
@@ -113,9 +115,10 @@ function PolicyTesterComponent() {
             )}
 
             {policyXml && (
-                <div className="mt-4 p-4 bg-[#35166e] rounded-lg">
-                    <h2 className="text-lg font-bold mb-2 text-zinc-50">Policy Record</h2>
-                    <pre className="text-zinc-50 whitespace-pre-wrap">{policyXml}</pre>
+                <div className="mt-4 p-4 bg-[#292a2d] rounded-lg">
+                    <h2 className="text-xl font-bold mb-2 text-zinc-300">Policy Record</h2>
+                    <hr className="my-4 border-zinc-700" />
+                    <pre className="text-zinc-300 whitespace-pre-wrap">{policyXml}</pre>
                 </div>
             )}
 
@@ -126,8 +129,8 @@ function PolicyTesterComponent() {
                 </div>
             )}
 
-            {addPolicyResult && (
-                <div className="mt-4 p-4 bg-blue-200 rounded-lg">
+            {showToast && addPolicyResult && (
+                <div className="absolute top-4 right-4 p-4 bg-blue-200 rounded-lg shadow-lg">
                     <h2 className="text-lg font-bold mb-2 text-blue-800">Add Policy Result</h2>
                     <p className="text-blue-800">{addPolicyResult}</p>
                 </div>

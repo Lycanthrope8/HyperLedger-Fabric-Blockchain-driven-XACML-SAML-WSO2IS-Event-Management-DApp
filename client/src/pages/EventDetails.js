@@ -273,7 +273,7 @@ function EventDetails() {
               Interested
             </button>
             <button
-              className="flex items-center gap-2 bg-[#e74b2d]/80 hover:bg-[#e74b2d]/90 text-zinc-50 font-bold py-2 px-4 rounded transition-all"
+              className={`flex items-center gap-2 border ${!going ? 'border-[#e74b2d]/80 text-[#e74b2d]' : 'bg-[#e74b2d]/80 text-zinc-50'} hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
               onClick={() => setGoing(!going)}
             >
               {going ? (

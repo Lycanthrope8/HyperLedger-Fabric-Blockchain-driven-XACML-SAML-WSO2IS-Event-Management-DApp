@@ -26,7 +26,7 @@ function App() {
       <l-bouncy
         size="45"
         speed="1.75"
-        color="white"
+        color="black"
       ></l-bouncy></div>;
   }
 

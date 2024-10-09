@@ -88,7 +88,7 @@ function AdminPage() {
                             <FiLogOut /> Policy
                         </li>
                     )}
-                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => setActiveTab('Home')}>
+                    <li className="flex items-center gap-2 p-2 hover:bg-[#3c4043] rounded cursor-pointer" onClick={() => Navigate("/")}>
                         <FiHome /> Go back Home
                     </li>
                 </ul>

@@ -3,22 +3,24 @@ import { TbEdit, TbTrash } from "react-icons/tb";
 import axios from 'axios';
 import useAuthorization from '../hooks/useAuthorization';
 import { useUser } from "../contexts/UserContext";
+import ConfirmModalComponent from './confirmModalComponent';
 
 function RolesComponent() {
-    const [roles, setRoles] = useState([]); // Initialize empty state for roles
-    const [newRoleName, setNewRoleName] = useState(''); // State to store the new role's name
-    const [newRoleDescription, setNewRoleDescription] = useState(''); // State to store the new role's description
-    const [isAddingRole, setIsAddingRole] = useState(false); // State to track if adding a new role
-    const [editRole, setEditRole] = useState(null); // State to track if editing a role
+    const [roles, setRoles] = useState([]);
+    const [newRoleName, setNewRoleName] = useState('');
+    const [newRoleDescription, setNewRoleDescription] = useState('');
+    const [isAddingRole, setIsAddingRole] = useState(false);
+    const [editRole, setEditRole] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [modalAction, setModalAction] = useState('');
+    const [roleToDelete, setRoleToDelete] = useState(null);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
 
-    const { userProfile } = useUser(); // Get user profile from context
-
-    // Authorization hooks for actions
+    const { userProfile } = useUser();
     const { isAuthorized: canCreate, loading: loadingCreate } = useAuthorization(userProfile.username, 'write', 'roles');
     const { isAuthorized: canUpdate, loading: loadingUpdate } = useAuthorization(userProfile.username, 'update', 'roles');
     const { isAuthorized: canDelete, loading: loadingDelete } = useAuthorization(userProfile.username, 'delete', 'roles');
 
-    // Fetch roles from the API
     useEffect(() => {
         const fetchRoles = async () => {
             try {
@@ -32,13 +34,17 @@ function RolesComponent() {
     }, []);
 
     const handleEdit = (role) => {
-        setEditRole(role); // Set the role to be edited
-        setNewRoleName(role.name); // Pre-fill the text box with the role's name
-        setNewRoleDescription(role.description); // Pre-fill the text box with the role's description
-        setIsAddingRole(true); // Show the input fields
+        setEditRole(role);
+        setNewRoleName(role.name);
+        setNewRoleDescription(role.description);
+        setIsAddingRole(true);
     };
 
-    const handleUpdateRole = async () => {
+    const handleUpdateRole = () => {
+        setShowUpdateModal(true);
+    };
+
+    const confirmUpdate = async () => {
         if (editRole) {
             try {
                 const updatedRole = {
@@ -46,21 +52,30 @@ function RolesComponent() {
                     description: newRoleDescription
                 };
                 const response = await axios.put(`https://localhost:3000/roles/${editRole._id}`, updatedRole);
-                setRoles(roles.map(role => role._id === editRole._id ? response.data : role)); // Update the role in the local state
-                resetForm(); // Clear the input fields and reset states
+                setRoles(roles.map(role => role._id === editRole._id ? response.data : role));
+                resetForm();
+                setShowUpdateModal(false);
             } catch (error) {
                 console.error("Failed to update role:", error);
             }
         }
     };
 
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`https://localhost:3000/roles/${id}`, { withCredentials: true });
-            // Remove the role from the local state
-            setRoles(roles.filter(role => role._id !== id));
-        } catch (error) {
-            console.error("Failed to delete role:", error);
+    const handleDelete = (id) => {
+        setRoleToDelete(id);
+        setModalAction('delete');
+        setShowModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (roleToDelete) {
+            try {
+                await axios.delete(`https://localhost:3000/roles/${roleToDelete}`, { withCredentials: true });
+                setRoles(roles.filter(role => role._id !== roleToDelete));
+                setShowModal(false);
+            } catch (error) {
+                console.error("Failed to delete role:", error);
+            }
         }
     };
 
@@ -72,8 +87,8 @@ function RolesComponent() {
             };
             try {
                 const response = await axios.post('https://localhost:3000/roles', newRole, { withCredentials: true });
-                setRoles([...roles, response.data]); // Add the new role to the local state
-                resetForm(); // Clear the input fields
+                setRoles([...roles, response.data]);
+                resetForm();
             } catch (error) {
                 console.error("Failed to add role:", error);
             }
@@ -83,15 +98,15 @@ function RolesComponent() {
     };
 
     const resetForm = () => {
-        setNewRoleName(''); // Clear the role name input
-        setNewRoleDescription(''); // Clear the role description input
-        setIsAddingRole(false); // Hide the input form
-        setEditRole(null); // Clear the edit state
+        setNewRoleName('');
+        setNewRoleDescription('');
+        setIsAddingRole(false);
+        setEditRole(null);
     };
 
     const toggleAddRole = () => {
-        resetForm(); // Reset everything when toggling the form
-        setIsAddingRole(!isAddingRole); // Toggle the visibility of the input field
+        resetForm();
+        setIsAddingRole(!isAddingRole);
     };
 
     return (
@@ -101,7 +116,7 @@ function RolesComponent() {
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-bold text-zinc-50">Roles</h2>
                     {!loadingCreate && canCreate && (
-                        <button onClick={toggleAddRole} className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 hover:brightness-105">
+                        <button onClick={toggleAddRole} className={`${isAddingRole ? 'bg-[#6d2b2b]' : 'bg-[#292a2d]'} py-2 px-4 rounded-lg text-zinc-50 hover:brightness-105`}>
                             {isAddingRole ? 'Cancel' : 'Add Role'}
                         </button>
                     )}
@@ -117,11 +132,11 @@ function RolesComponent() {
                     </thead>
                     <tbody>
                         {roles.length > 0 ? roles.map((role, index) => (
-                            <tr key={role._id}>
-                                <td className="border px-4 py-2">{index + 1}</td>
-                                <td className="border px-4 py-2">{role.name}</td>
-                                <td className="border px-4 py-2">{role.description}</td>
-                                <td className="border px-4 py-2 flex justify-evenly">
+                            <tr key={role._id} className='border border-zinc-500'>
+                                <td className="border-r border-zinc-500 px-4 py-2">{index + 1}</td>
+                                <td className="border-r border-zinc-500 px-4 py-2">{role.name}</td>
+                                <td className="border-r border-zinc-500 px-4 py-2">{role.description}</td>
+                                <td className="px-4 py-2 flex justify-evenly">
                                     {!loadingUpdate && canUpdate && (
                                         <button onClick={() => handleEdit(role)} className="bg-[#5c5470] py-1 px-3 rounded hover:brightness-105">
                                             <TbEdit className='text-2xl' />
@@ -143,7 +158,6 @@ function RolesComponent() {
                 </table>
             </div>
 
-            {/* Conditionally render the input field for adding/updating roles */}
             {isAddingRole && (
                 <div className="mt-4 bg-[#202124] p-4 rounded-lg">
                     <h2 className="text-lg font-bold text-zinc-50 mb-3">{editRole ? 'Edit Role' : 'Add New Role'}</h2>
@@ -152,24 +166,46 @@ function RolesComponent() {
                         value={newRoleName}
                         onChange={(e) => setNewRoleName(e.target.value)}
                         placeholder="Enter role name"
-                        className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 w-full mb-2"
+                        className="bg-[#292a2d] py-2 px-4 rounded-lg text-zinc-50 w-full mb-2"
                     />
                     <input
                         type="text"
                         value={newRoleDescription}
                         onChange={(e) => setNewRoleDescription(e.target.value)}
                         placeholder="Enter role description"
-                        className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 w-full mb-2"
+                        className="bg-[#292a2d] py-2 px-4 rounded-lg text-zinc-50 w-full mb-2"
                     />
                     {!loadingCreate && canCreate && (
                         <button
                             onClick={editRole ? handleUpdateRole : handleAddRole}
-                            className="bg-[#292a2d] py-2 px-4 rounded-full text-zinc-50 hover:brightness-105"
+                            className="bg-[#292a2d] py-2 px-4 rounded-lg text-zinc-50 hover:brightness-105"
                         >
                             {editRole ? 'Update Role' : 'Save Role'}
                         </button>
                     )}
                 </div>
+            )}
+
+            {showModal && (
+                <ConfirmModalComponent
+                    title="Confirm Delete"
+                    message="Are you sure you want to delete this role?"
+                    onConfirm={confirmDelete}
+                    onCancel={() => setShowModal(false)}
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                />
+            )}
+
+            {showUpdateModal && (
+                <ConfirmModalComponent
+                    title="Confirm Update"
+                    message="Are you sure you want to update this role?"
+                    onConfirm={confirmUpdate}
+                    onCancel={() => setShowUpdateModal(false)}
+                    confirmText="Update"
+                    cancelText="Cancel"
+                />
             )}
         </div>
     );
