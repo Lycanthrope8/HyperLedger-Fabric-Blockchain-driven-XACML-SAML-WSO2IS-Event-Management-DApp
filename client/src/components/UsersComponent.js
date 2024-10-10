@@ -12,6 +12,7 @@ function UserComponent() {
     const [rolesOptions, setRolesOptions] = useState([]);
     const [editUser, setEditUser] = useState(null);
     const [selectedRoles, setSelectedRoles] = useState([]);
+    const [originalRoles, setOriginalRoles] = useState([]); // Store original roles before editing
     const [newRole, setNewRole] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [modalAction, setModalAction] = useState('');
@@ -61,12 +62,7 @@ function UserComponent() {
         setEditUser(user);
         const userRoles = user.role ? user.role.map(r => ({ value: r, label: r })) : [];
         setSelectedRoles(userRoles);
-
-        // Filter out roles that the user already has
-        const availableRoles = rolesOptions.filter(
-            (roleOption) => !userRoles.find(userRole => userRole.value === roleOption.value)
-        );
-        setRolesOptions(availableRoles);
+        setOriginalRoles(userRoles); // Save original roles for comparison later
     };
 
     const handleSave = () => {
@@ -78,9 +74,17 @@ function UserComponent() {
         setIsLoadingSave(true); // Start loading
         setShowModal(false);
         try {
-            const rolesToSave = selectedRoles.map(option => option.value);
+            // Prepare arrays of role names from selectedRoles and originalRoles
+            const selectedRoleValues = selectedRoles.map(option => option.value);
+            const originalRoleValues = originalRoles.map(option => option.value);
 
-            for (const role of rolesToSave) {
+            // Determine which roles need to be added
+            const rolesToAdd = selectedRoleValues.filter(role => !originalRoleValues.includes(role));
+            // Determine which roles need to be removed
+            const rolesToRemove = originalRoleValues.filter(role => !selectedRoleValues.includes(role));
+
+            // API call to add new roles
+            for (const role of rolesToAdd) {
                 const response = await axios.post('https://localhost:3000/xacml/setRole', {
                     username: editUser.username,
                     roles: role,
@@ -92,24 +96,43 @@ function UserComponent() {
                 });
 
                 if (response.status !== 200) {
-                    throw new Error(`Failed to save role: ${role}`);
+                    throw new Error(`Failed to add role: ${role}`);
                 }
             }
 
+            // API call to remove roles
+            for (const role of rolesToRemove) {
+                const response = await axios.post('https://localhost:3000/xacml/removeRole', {
+                    username: editUser.username,
+                    role: role,
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${userProfile.username}`,
+                    },
+                    withCredentials: true, // Include credentials if necessary
+                });
+
+                if (response.status !== 200) {
+                    throw new Error(`Failed to remove role: ${role}`);
+                }
+            }
+
+            // Update the user list locally
             const updatedUsers = users.map(user =>
-                user.username === editUser.username ? { ...user, role: rolesToSave } : user
+                user.username === editUser.username ? { ...user, role: selectedRoleValues } : user
             );
             setUsers(updatedUsers);
+
+            // Reset after saving
             setEditUser(null);
             setSelectedRoles([]);
+            setOriginalRoles([]);
         } catch (error) {
             console.error('Failed to update user roles:', error);
         } finally {
             setIsLoadingSave(false); // End loading
         }
     };
-    
-    
 
     const handleDelete = (username) => {
         setUserToModify(username);
@@ -135,36 +158,8 @@ function UserComponent() {
         }
     };
 
-    const handleRemoveRole = (username, role) => {
-        setUserToModify(username);
-        setRoleToRemove(role);
-        setModalAction('removeRole');
-        setShowModal(true);
-    };
-
-    const confirmRemoveRole = async () => {
-        setIsLoadingSave(true); // Start loading
-        setShowModal(false);
-        try {
-            await axios.post('https://localhost:3000/xacml/removeRole', {
-                username: userToModify,
-                role: roleToRemove,
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${userProfile.username}`,
-                },
-                withCredentials: true, // Include credentials if necessary
-            });
-
-            const updatedUsers = users.map(user =>
-                user.username === userToModify ? { ...user, role: user.role.filter(r => r !== roleToRemove) } : user
-            );
-            setUsers(updatedUsers);
-        } catch (error) {
-            console.error('Failed to remove role:', error);
-        } finally {
-            setIsLoadingSave(false); // End loading
-        }
+    const handleRemoveRoleFromEdit = (roleToRemove) => {
+        setSelectedRoles(prevRoles => prevRoles.filter(role => role.value !== roleToRemove));
     };
 
     const handleAddNewRole = () => {
@@ -226,12 +221,6 @@ function UserComponent() {
                                         {user.role ? user.role.map(r => (
                                             <span key={r} className="inline-block mr-2 mb-2 bg-[#5c5470] p-2 rounded text-white">
                                                 {r}
-                                                <button 
-                                                    className="ml-2 text-red-500 hover:text-red-300"
-                                                    onClick={() => handleRemoveRole(user.username, r)}
-                                                >
-                                                    &times;
-                                                </button>
                                             </span>
                                         )) : 'No role'}
                                     </td>
@@ -268,7 +257,8 @@ function UserComponent() {
                         styles={customStyles}
                         className="text-zinc-50"
                     />
-                    <div className="flex mt-4">
+                    
+                    {/* <div className="flex mt-4">
                         <input
                             type="text"
                             value={newRole}
@@ -279,7 +269,7 @@ function UserComponent() {
                         <button onClick={handleAddNewRole} className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105">
                             Add Role
                         </button>
-                    </div>
+                    </div> */}
 
                     {!loadingSave && canSave && (
                         <button className="bg-[#5c5470] text-zinc-50 py-1 px-3 rounded hover:brightness-105 mt-4" onClick={handleSave}>
@@ -294,11 +284,11 @@ function UserComponent() {
 
             {showModal && (
                 <ConfirmModalComponent
-                    title={modalAction === 'delete' ? 'Confirm Delete' : modalAction === 'removeRole' ? 'Confirm Remove Role' : 'Confirm Save'}
-                    message={modalAction === 'delete' ? 'Are you sure you want to delete this user?' : modalAction === 'removeRole' ? `Are you sure you want to remove the role "${roleToRemove}"?` : 'Do you want to save the changes?'}
-                    onConfirm={modalAction === 'delete' ? confirmDelete : modalAction === 'removeRole' ? confirmRemoveRole : confirmSave}
+                    title={modalAction === 'delete' ? 'Confirm Delete' : 'Confirm Save'}
+                    message={modalAction === 'delete' ? 'Are you sure you want to delete this user?' : 'Do you want to save the changes?'}
+                    onConfirm={modalAction === 'delete' ? confirmDelete : confirmSave}
                     onCancel={() => setShowModal(false)}
-                    confirmText={modalAction === 'delete' ? 'Delete' : modalAction === 'removeRole' ? 'Remove Role' : 'Save'}
+                    confirmText={modalAction === 'delete' ? 'Delete' : 'Save'}
                     cancelText="Cancel"
                 />
             )}
