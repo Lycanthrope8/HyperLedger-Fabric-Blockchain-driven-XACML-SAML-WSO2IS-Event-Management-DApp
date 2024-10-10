@@ -249,25 +249,60 @@ async function evaluatePolicy(request) {
 }
 
 async function setRole(username, roles) {
-    const client = await newGrpcConnection();
-    const gateway = connect({
-        client,
-        identity: await newIdentity('Org1'),
-        signer: await newSigner('Org1'),
-        discovery: { enabled: true, asLocalhost: true },
-    });
-    try {
-        const contract = await getContractInstance(gateway, channelName, 'chaincodePIP');
-        await contract.submitTransaction('setRole', username, roles);
-        return "Role set successfully";
-    } catch (error) {
-        console.error(`Error setting role: ${error.message}`);
-        throw error;
-    } finally {
-        gateway.close();
-        client.close();
-    }
+  const client = await newGrpcConnection();
+  const gateway = connect({
+    client,
+    identity: await newIdentity("Org1"),
+    signer: await newSigner("Org1"),
+    discovery: { enabled: true, asLocalhost: true },
+  });
+  try {
+    const contract = await getContractInstance(
+      gateway,
+      channelName,
+      "chaincodePIP"
+    );
+    await contract.submitTransaction("setRole", username, roles);
+    return "Role set successfully";
+  } catch (error) {
+    console.error(`Error setting role: ${error.message}`);
+    throw error;
+  } finally {
+    gateway.close();
+    client.close();
+  }
 }
+
+async function setDefaultRole(username, roles) {
+  const client = await newGrpcConnection();
+  const gateway = connect({
+    client,
+    identity: await newIdentity("Org1"),
+    signer: await newSigner("Org1"),
+    discovery: { enabled: true, asLocalhost: true },
+  });
+  try {
+    const contract = await getContractInstance(
+      gateway,
+      channelName,
+      "chaincodePIP"
+    );
+    // Ensure the roles are passed as a string
+    await contract.submitTransaction(
+      "setRole",
+      username,
+      JSON.stringify(roles)
+    );
+    return "Role set successfully";
+  } catch (error) {
+    console.error(`Error setting role: ${error.message}`);
+    throw error;
+  } finally {
+    gateway.close();
+    client.close();
+  }
+}
+
 
 async function getRole(username) {
     const client = await newGrpcConnection();
@@ -478,6 +513,7 @@ module.exports = {
     enforceAccessControl,
     evaluatePolicy,
     setRole,
+    setDefaultRole,
     getRole,
     addPolicy,
     getPolicy,
