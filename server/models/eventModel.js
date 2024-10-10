@@ -47,8 +47,11 @@ const eventSchema = new Schema({
     going: {
         type: [String],
         default: []
+    },
+    booked: {
+        type: [String],
+        default: []
     }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Event', eventSchema);
-

@@ -13,9 +13,11 @@ import { useDropzone } from "react-dropzone";
 function EventDetails() {
   const [interested, setInterested] = useState(false);
   const [going, setGoing] = useState(false);
+  const [booked, setBooked] = useState(false);
   const [post, setPost] = useState(null);
   const [editing, setEditing] = useState(false);
   const [files, setFiles] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -55,7 +57,9 @@ function EventDetails() {
 
   const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
     useDropzone({
-      accept: "image/*",
+      accept: {
+        'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.svg'],
+      },
       onDrop: (acceptedFiles) => {
         setFiles(
           acceptedFiles.map((file) =>
@@ -99,12 +103,41 @@ function EventDetails() {
   };
 
   const handleInterested = async () => {
-    if (interested) {
-      setInterested(false);
-    } else {
-      setInterested(true);
+    try {
+      const response = await axios.post(
+        `https://localhost:3000/events/${id}/interested`,
+        { username: userProfile.username }
+      );
+      setInterested(response.data.interested.includes(userProfile.username));
+    } catch (error) {
+      console.error("Error updating interested:", error);
     }
   };
+
+  const handleGoing = async () => {
+    try {
+      const response = await axios.post(
+        `https://localhost:3000/events/${id}/going`,
+        { username: userProfile.username }
+      );
+      setGoing(response.data.going.includes(userProfile.username));
+    } catch (error) {
+      console.error("Error updating going:", error);
+    }
+  };
+
+  const handleBooking = async () => {
+    try {
+      await axios.post(
+        `https://localhost:3000/events/${id}/book`,
+        { username: userProfile.username }
+      );
+      setBooked(true);
+    } catch (error) {
+      console.error("Failed to book ticket:", error);
+    }
+  };
+
 
   if (!post) {
     return (
@@ -124,7 +157,7 @@ function EventDetails() {
           {editing ? (
             <div
               {...getRootProps()}
-              className="border-dashed border-2 border-zinc-600 bg-zinc-300 p-4 rounded-lg mb-4 cursor-pointer"
+              className="border-dashed border-2 border-zinc-600 bg-zinc-300 p-4 rounded-lg cursor-pointer"
             >
               <input name="image" {...getInputProps()} />
               {files.length > 0 ? (
@@ -132,14 +165,14 @@ function EventDetails() {
                   <img
                     src={files[0].preview}
                     alt="preview"
-                    className="w-full h-96"
+                    className="w-full h-96 rounded-lg"
                   />
                 </div>
               ) : (
                 <p className="h-full flex justify-center items-center text-zinc-700">
                   {isDragActive
                     ? "Drop the image here ..."
-                    : "Drag 'n' drop an image here, or click to select an image"}
+                    : "Drag n drop an image here, or click to select an image"}
                 </p>
               )}
             </div>
@@ -151,7 +184,7 @@ function EventDetails() {
             />
           )}
           <div className="flex">
-            <div className="grow">
+            <div className="grow mr-2">
               <h1 className="text-5xl font-bold text-zinc-700 mb-2 text-pretty hyphens-auto">
                 {editing ? (
                   <input
@@ -171,15 +204,15 @@ function EventDetails() {
               </p>
               {!editing && (
                 <button
-                  className="flex items-center gap-2 bg-[#e74b2d]/50 hover:bg-zinc-400 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all"
-                  onClick={() => alert("Ticket purchased successfully.")}
+                  className={`flex items-center gap-2 ${booked ? 'bg-[#58e72d]/50' : 'bg-[#e74b2d]/50'} hover:brightness-90 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all`}
+                  onClick={() => handleBooking()}
                 >
                   <IoTicketSharp className="text-xl" />
-                  Buy a Ticket
+                  {booked ? "Booked!" : "Buy A Ticket"}
                 </button>
               )}
 
-              <p className="text-lg text-zinc-700">
+              <div className="text-lg text-zinc-700">
                 {editing ? (
                   <input
                     type="date"
@@ -194,8 +227,8 @@ function EventDetails() {
                     {moment(post.date).format("Do MMM YYYY, HH:mm a")}
                   </div>
                 )}
-              </p>
-              <p className="text-lg text-zinc-700">
+              </div>
+              <div className="text-lg text-zinc-700">
                 {editing ? (
                   <input
                     type="text"
@@ -210,8 +243,8 @@ function EventDetails() {
                     {post.location}
                   </div>
                 )}
-              </p>
-              <p className="text-lg text-zinc-700 mt-8">
+              </div>
+              <div className="text-lg text-zinc-700 mt-8">
                 {editing ? (
                   <textarea
                     name="description"
@@ -227,7 +260,7 @@ function EventDetails() {
                     <span>{post.description}</span>
                   </div>
                 )}
-              </p>
+              </div>
               {editing && (
                 <button
                   onClick={handleSave}
@@ -242,14 +275,14 @@ function EventDetails() {
                 <div className="flex gap-4 justify-center items-start">
                   <button
                     onClick={toggleEdit}
-                    className=" text-yellow-600 hover:text-yellow-700 transition-all"
+                    className=" text-zinc-700 hover:text-yellow-600 rounded p-1 shadow-md transition-all"
                     title="Edit Event"
                   >
                     <TbEdit size={32} />
                   </button>
                   <button
-                    onClick={handleDelete}
-                    className=" text-red-600 hover:text-red-700 transition-all"
+                    onClick={() => setShowModal(true)}
+                    className=" text-zinc-700 hover:text-red-600 rounded p-1 shadow-md transition-all"
                     title="Delete Event"
                   >
                     <TbTrash size={32} />
@@ -274,7 +307,7 @@ function EventDetails() {
             </button>
             <button
               className={`flex items-center gap-2 border ${!going ? 'border-[#e74b2d]/80 text-[#e74b2d]' : 'bg-[#e74b2d]/80 text-zinc-50'} hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
-              onClick={() => setGoing(!going)}
+              onClick={() => handleGoing()}
             >
               {going ? (
                 <PiShareFatFill className="text-xl" />
@@ -286,6 +319,28 @@ function EventDetails() {
           </div>
         )}
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center">
+          <div className="bg-zinc-300 p-6 rounded-lg text-center text-zinc-700 shadow-lg">
+            <h2 className="text-lg font-bold mb-3">Confirm Delete</h2>
+            <p className="mb-6">Are you sure you want to delete this event?</p>
+            <div className="flex justify-around">
+              <button
+                onClick={() => setShowModal(false)}
+                className="border-2 border-zinc-200  text-zinc-700 py-2 px-4 rounded hover:brightness-110 shadow-md transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="border-2 border-zinc-200 text-zinc-700 py-2 px-4 rounded hover:border-red-400 hover:brightness-110 shadow-md transition-all"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

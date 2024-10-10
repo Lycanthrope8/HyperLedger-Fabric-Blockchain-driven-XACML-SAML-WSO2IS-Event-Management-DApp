@@ -34,18 +34,18 @@ function UserComponent() {
                     },
                     withCredentials: true, // Include credentials if necessary
                 });
-    
+
                 if (Array.isArray(usersResponse.data)) {
                     setUsers(usersResponse.data);
                 }
-    
+
                 const rolesResponse = await axios.get('https://localhost:3000/roles', {
                     headers: {
                         'Authorization': `Bearer ${userProfile?.username}`,
                     },
                     withCredentials: true,
                 });
-    
+
                 if (Array.isArray(rolesResponse.data)) {
                     setRolesOptions(rolesResponse.data.map(role => ({ value: role.name, label: role.name })));
                 }
@@ -219,7 +219,7 @@ function UserComponent() {
                                     <td className="border-r border-zinc-500 px-4 py-2">{user.username || 'Unknown'}</td>
                                     <td className="border-r border-zinc-500 px-4 py-2">
                                         {user.role ? user.role.map(r => (
-                                            <span key={r} className="inline-block mr-2 mb-2 bg-[#5c5470] p-2 rounded text-white">
+                                            <span key={r} className="inline-block mr-2 bg-[#292a2d] px-2 py-1 rounded text-white">
                                                 {r}
                                             </span>
                                         )) : 'No role'}
@@ -257,7 +257,7 @@ function UserComponent() {
                         styles={customStyles}
                         className="text-zinc-50"
                     />
-                    
+
                     {/* <div className="flex mt-4">
                         <input
                             type="text"

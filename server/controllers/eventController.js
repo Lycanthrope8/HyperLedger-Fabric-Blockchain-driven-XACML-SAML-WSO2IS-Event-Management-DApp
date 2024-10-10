@@ -3,6 +3,8 @@ const path = require('path');
 const Event = require('../models/eventModel');
 
 const getEvents = async (req, res) => {
+    const startTimestamp = Date.now();
+    let count = 0;
     try {
         // Fetch all events from the database
         const events = await Event.find({});
@@ -28,9 +30,13 @@ const getEvents = async (req, res) => {
 
         res.json(formattedEvents);
     } catch (error) {
+        count++;
         console.error('Failed to retrieve events:', error);
         res.status(500).send('Error retrieving events: ' + error.message);
     }
+    const endTimestamp = Date.now();
+    console.log(`Elapsed time: ${endTimestamp - startTimestamp}ms`);
+    console.log(`Error count: ${count}`);
 };
 
 const getEventById = async (req, res,) => {
@@ -131,6 +137,63 @@ const downvoteEvent = async (req, res) => {
     }
 };
 
+const bookTicket = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) return res.status(404).send("Event not found");
+
+        const { username } = req.body;
+        if (!event.booked.includes(username)) {
+            event.booked.push(username);
+        }
+
+        await event.save();
+        res.json(event);
+    } catch (error) {
+        res.status(500).send("Error booking ticket: " + error.message);
+    }
+};
+
+
+const updateInterested = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) return res.status(404).send('Event not found');
+
+        const { username } = req.body;
+        if (event.interested.includes(username)) {
+            event.interested.pull(username);
+        } else {
+            event.interested.push(username);
+        }
+
+        await event.save();
+        res.json(event);
+    } catch (error) {
+        res.status(500).send('Error updating interested: ' + error.message);
+    }
+};
+
+const updateGoing = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) return res.status(404).send('Event not found');
+
+        const { username } = req.body;
+        if (event.going.includes(username)) {
+            event.going.pull(username);
+        } else {
+            event.going.push(username);
+        }
+
+        await event.save();
+        res.json(event);
+    } catch (error) {
+        res.status(500).send('Error updating going: ' + error.message);
+    }
+};
+
+
 module.exports = {
     getEvents,
     getEventById,
@@ -138,5 +201,8 @@ module.exports = {
     updateEvent,
     deleteEvent,
     upvoteEvent,
-    downvoteEvent
+    downvoteEvent,
+    bookTicket,
+    updateInterested,
+    updateGoing
 };
