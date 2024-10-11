@@ -9,6 +9,7 @@ import { FaCalendarDays, FaLocationDot } from "react-icons/fa6";
 import { useUser } from "../contexts/UserContext";
 import moment from "moment";
 import { useDropzone } from "react-dropzone";
+import useAuthorization from "../hooks/useAuthorization";
 
 function EventDetails() {
   const [interested, setInterested] = useState(false);
@@ -29,7 +30,12 @@ function EventDetails() {
   const navigate = useNavigate();
   const { userProfile } = useUser();
   const { id } = useParams();
-
+  const username = userProfile?.username; 
+  const { isAuthorized: canEdit } = useAuthorization(
+    username,
+    "update",
+    "events"
+  );
   useEffect(() => {
     const fetchEventDetails = async () => {
       const response = await axios.get(`https://localhost:3000/events/${id}`, {
@@ -216,11 +222,15 @@ function EventDetails() {
               </h1>
               <p className="flex gap-1 text-lg text-zinc-700 mb-8">
                 by{" "}
-                <span className="font-bold text-slate-500">{post.organizer}</span>
+                <span className="font-bold text-slate-500">
+                  {post.organizer}
+                </span>
               </p>
               {!editing && (
                 <button
-                  className={`flex items-center gap-2 ${booked ? 'bg-[#58e72d]/50' : 'bg-[#e74b2d]/50'} hover:brightness-90 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all`}
+                  className={`flex items-center gap-2 ${
+                    booked ? "bg-[#58e72d]/50" : "bg-[#e74b2d]/50"
+                  } hover:brightness-90 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all`}
                   onClick={() => handleBooking()}
                 >
                   <IoTicketSharp className="text-xl" />
@@ -286,32 +296,37 @@ function EventDetails() {
                 </button>
               )}
             </div>
-            {
-              userProfile?.username === post.organizer && (
-                <div className="flex gap-4 justify-center items-start">
-                  <button
-                    onClick={toggleEdit}
-                    className=" text-zinc-700 hover:text-yellow-600 rounded p-1 shadow-md transition-all"
-                    title="Edit Event"
-                  >
-                    <TbEdit size={32} />
-                  </button>
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className=" text-zinc-700 hover:text-red-600 rounded p-1 shadow-md transition-all"
-                    title="Delete Event"
-                  >
-                    <TbTrash size={32} />
-                  </button>
-                </div>
-              )
-            }
+            {(userProfile?.username === post.organizer || canEdit) && (
+              <div className="flex gap-4 justify-center items-start">
+                <button
+                  onClick={toggleEdit}
+                  className=" text-zinc-700 hover:text-yellow-600 rounded p-1 shadow-md transition-all"
+                  title="Edit Event"
+                >
+                  <TbEdit size={32} />
+                </button>
+                {userProfile?.username ===
+                  post.organizer &&(
+                    <button
+                      onClick={() => setShowModal(true)}
+                      className=" text-zinc-700 hover:text-red-600 rounded p-1 shadow-md transition-all"
+                      title="Delete Event"
+                    >
+                      <TbTrash size={32} />
+                    </button>
+                  )}
+              </div>
+            )}
           </div>
         </div>
         {!editing && (
           <div className="flex space-x-4 mt-4">
             <button
-              className={`flex items-center gap-2 border ${!interested ? 'border-[#e74b2d]/80 text-[#e74b2d]' : 'bg-[#e74b2d]/80 text-zinc-50'} hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
+              className={`flex items-center gap-2 border ${
+                !interested
+                  ? "border-[#e74b2d]/80 text-[#e74b2d]"
+                  : "bg-[#e74b2d]/80 text-zinc-50"
+              } hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
               onClick={() => handleInterested()}
             >
               {interested ? (
@@ -322,7 +337,11 @@ function EventDetails() {
               Interested
             </button>
             <button
-              className={`flex items-center gap-2 border ${!going ? 'border-[#e74b2d]/80 text-[#e74b2d]' : 'bg-[#e74b2d]/80 text-zinc-50'} hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
+              className={`flex items-center gap-2 border ${
+                !going
+                  ? "border-[#e74b2d]/80 text-[#e74b2d]"
+                  : "bg-[#e74b2d]/80 text-zinc-50"
+              } hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
               onClick={() => handleGoing()}
             >
               {going ? (
