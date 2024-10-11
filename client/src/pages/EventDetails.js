@@ -32,7 +32,12 @@ function EventDetails() {
 
   useEffect(() => {
     const fetchEventDetails = async () => {
-      const response = await axios.get(`https://localhost:3000/events/${id}`);
+      const response = await axios.get(`https://localhost:3000/events/${id}`, {
+        headers: {
+          Authorization: `Bearer ${userProfile.username}`,
+        },
+        withCredentials: true, // Include credentials if necessary
+      });
       setPost(response.data);
       setFormData({
         title: response.data.title,
@@ -82,7 +87,13 @@ function EventDetails() {
     try {
       const response = await axios.put(
         `https://localhost:3000/events/${id}`,
-        data
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${userProfile.username}`,
+          },
+          withCredentials: true, // Include credentials if necessary
+        }
       );
       setPost({ ...post, ...formData });
       setEditing(false);
@@ -94,7 +105,12 @@ function EventDetails() {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this event?")) {
       try {
-        await axios.delete(`https://localhost:3000/events/${id}`);
+        await axios.delete(`https://localhost:3000/events/${id}`, {
+          headers: {
+            Authorization: `Bearer ${userProfile.username}`,
+          },
+          withCredentials: true, // Include credentials if necessary
+        });
         navigate("/");
       } catch (error) {
         console.error("Failed to delete event:", error);

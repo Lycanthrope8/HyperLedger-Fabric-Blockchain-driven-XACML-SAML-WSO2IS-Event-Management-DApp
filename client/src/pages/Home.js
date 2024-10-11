@@ -26,7 +26,12 @@ function Home() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get("https://localhost:3000/events");
+        const response = await axios.get("https://localhost:3000/events", {
+          headers: {
+            Authorization: `Bearer ${userProfile.username}`,
+          },
+          withCredentials: true, // Include credentials if necessary
+        });
         setPosts(response.data);
       } catch (error) {
         console.error("Failed to fetch events:", error);
@@ -62,7 +67,12 @@ function Home() {
 
   const handleDownvote = async (postId) => {
     try {
-      await axios.post(`https://localhost:3000/events/${postId}/downvote`);
+      await axios.post(`https://localhost:3000/events/${postId}/downvote`, {
+        headers: {
+          Authorization: `Bearer ${userProfile.username}`,
+        },
+        withCredentials: true, // Include credentials if necessary
+      });
       const updatedPosts = posts.map((post) =>
         post._id === postId
           ? { ...post, downvotes: (post.downvotes || 0) + 1 }

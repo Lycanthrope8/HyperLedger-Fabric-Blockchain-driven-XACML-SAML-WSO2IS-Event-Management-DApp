@@ -51,11 +51,17 @@ function PostForm({ onAddPost }) {
 
       try {
         console.log("Posting event...", formData);
-        const response = await axios.post("https://localhost:3000/events", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const response = await axios.post(
+          "https://localhost:3000/events",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${userProfile.username}`,
+            },
+            withCredentials: true,
+          }
+        );
         onAddPost(response.data); // Optionally update UI based on response
         setText("");
         setDate("");
