@@ -27,7 +27,7 @@ function App() {
     isAuthorized: isAdminAuthorized,
     loading: authzLoadingAdmin,
     error: adminAuthzError,
-  } = useAuthorization(username, "write", "adminPanel");
+  } = useAuthorization(username, "write", "roles");
   const {
     isAuthorized: canAccessEvents,
     loading: authzLoadingEvents,
