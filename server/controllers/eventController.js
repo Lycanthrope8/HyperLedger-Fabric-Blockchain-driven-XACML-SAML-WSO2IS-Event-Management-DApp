@@ -51,30 +51,31 @@ const getEventById = async (req, res,) => {
     }
 };
 
+
 const createEvent = async (req, res) => {
-    const { organizer, title, description, date, location } = req.body;
-    console.log(req.file);
+  const { organizer, title, description, date, location } = req.body;
 
-    const imagePath = req.file ? req.file.path : null;
+  // If no file is uploaded, return an error
+  if (!req.file) {
+    return res.status(400).json({ message: "Image is required" });
+  }
 
-    if (!imagePath) {
-        return res.status(400).send('Image is required');
-    }
+  const imagePath = req.file.path;
 
-    try {
-        const event = new Event({
-            organizer,
-            image: imagePath,  // Store only the path
-            title,
-            description,
-            date,
-            location
-        });
-        await event.save();
-        res.status(201).json(event);
-    } catch (error) {
-        res.status(400).send('Error creating event: ' + error.message);
-    }
+  try {
+    const event = new Event({
+      organizer,
+      image: imagePath,
+      title,
+      description,
+      date,
+      location,
+    });
+    await event.save();
+    res.status(201).json(event);
+  } catch (error) {
+    res.status(400).json({ message: "Error creating event: " + error.message });
+  }
 };
 
 

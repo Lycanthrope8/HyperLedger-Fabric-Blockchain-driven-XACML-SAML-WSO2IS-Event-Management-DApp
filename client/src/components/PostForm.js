@@ -13,14 +13,26 @@ function PostForm({ onAddPost }) {
   const [organizer, setOrganizer] = useState("");
   const [files, setFiles] = useState([]);
 
-  const { getRootProps, getInputProps, isDragActive, acceptedFiles } = useDropzone({
-    accept: 'image/*',
-    onDrop: (acceptedFiles) => {
-      setFiles(acceptedFiles.map(file => Object.assign(file, {
-        preview: URL.createObjectURL(file)
-      })));
-    }
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { "image/*": [".jpg", ".jpeg", ".png", ".gif"] },
+    onDrop: (acceptedFiles, rejectedFiles) => {
+      if (rejectedFiles.length > 0) {
+        alert(
+          "Invalid file type or size. Only image files up to 5MB are allowed."
+        );
+      } else {
+        setFiles(
+          acceptedFiles.map((file) =>
+            Object.assign(file, {
+              preview: URL.createObjectURL(file),
+            })
+          )
+        );
+      }
+    },
+    maxSize: 1024 * 1024 * 5, // 5MB file size limit
   });
+
 
   useEffect(() => {
     setOrganizer(userProfile.username);
@@ -38,6 +50,7 @@ function PostForm({ onAddPost }) {
       formData.append("image", files[0]);
 
       try {
+        console.log("Posting event...", formData);
         const response = await axios.post("https://localhost:3000/events", formData, {
           headers: {
             "Content-Type": "multipart/form-data",

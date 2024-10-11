@@ -34,8 +34,15 @@ function App() {
     error: eventAuthzError,
   } = useAuthorization(username, "read", "events");
 
+  const {
+    isAuthorized: canCreateEvents,
+    loading: authzLoadingCreateEvents,
+    error: createEventAuthzError,
+  } = useAuthorization(username, "write", "events");
+
+
   // Combine loading states for all routes
-  const isLoading = authLoading || authzLoadingAdmin || authzLoadingEvents;
+  const isLoading = authLoading || authzLoadingAdmin || authzLoadingEvents || authzLoadingCreateEvents;
 
   // Show loading spinner while waiting for authentication or authorization
   if (isLoading) {
@@ -47,8 +54,8 @@ function App() {
   }
 
   // Handle authorization errors if any
-  if (adminAuthzError || eventAuthzError) {
-    console.error("Authorization Error:", adminAuthzError || eventAuthzError);
+  if (adminAuthzError || eventAuthzError || createEventAuthzError) {
+    console.error("Authorization Error:", adminAuthzError || eventAuthzError || createEventAuthzError);
     return <div>Error checking authorization.</div>;
   }
 
@@ -85,7 +92,7 @@ function App() {
           path="/eventcreate"
           element={
             authenticated ? (
-              isAdminAuthorized ? (
+              canCreateEvents ? (
                 <CreateEvent />
               ) : (
                 <Navigate to="/not-authorized" />
