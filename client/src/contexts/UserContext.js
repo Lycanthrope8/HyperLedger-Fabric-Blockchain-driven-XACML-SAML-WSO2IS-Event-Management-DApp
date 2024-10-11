@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 // Create the user context with default values and a function placeholder
 const UserContext = createContext({
@@ -12,7 +12,8 @@ const UserContext = createContext({
     roles: [],
     username: "",
   },
-//   setUserProfile: () => {}  // Placeholder function for updating the user profile
+  setUserProfile: () => {}, // Placeholder function for updating the user profile
+  loading: true, // Add loading state in the context
 });
 
 // Custom hook to use the user context easily in any component
@@ -32,59 +33,60 @@ export const UserProvider = ({ children }) => {
     roles: [],
     username: "",
   });
+  const [loading, setLoading] = useState(true); // Loading state to manage fetching
 
   // Function to fetch user profile from your server
-const fetchUserProfile = async () => {
-  try {
-    const response = await fetch('https://localhost:3000/user-profile', {
-      method: 'GET',
-      credentials: 'include'  // Necessary for cookies to be sent and received
-    });
-
-    if (response.status === 401) {
-      // Handle case where user is not logged in (401 Unauthorized)
-      console.log("User is not logged in.");
-      setUserProfile({
-        displayName: "",
-        email: "",
-        firstName: "",
-        fullName: "",
-        lastName: "",
-        phoneNumbers: [],
-        roles: [],
-        username: "",
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch("https://localhost:3000/user-profile", {
+        method: "GET",
+        credentials: "include", // Necessary for cookies to be sent and received
       });
-      return;  // Early return to prevent further execution
+
+      if (response.status === 401) {
+        // Handle case where user is not logged in (401 Unauthorized)
+        console.log("User is not logged in.");
+        setUserProfile({
+          displayName: "",
+          email: "",
+          firstName: "",
+          fullName: "",
+          lastName: "",
+          phoneNumbers: [],
+          roles: [],
+          username: "",
+        });
+        setLoading(false); // Ensure to set loading to false
+        return; // Early return to prevent further execution
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+
+      // Check if the response body is empty
+      const text = await response.text();
+      if (!text) {
+        console.log("No user profile available (empty response).");
+        setLoading(false); // Set loading to false if response is empty
+        return; // Don't throw an error, just return silently
+      }
+
+      // Attempt to parse the JSON
+      const data = JSON.parse(text);
+
+      // Optional: Add validation to check if the expected fields are present
+      if (!data || typeof data !== "object" || !data.username) {
+        throw new Error("Invalid JSON format");
+      }
+
+      setUserProfile(data);
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error.message);
+    } finally {
+      setLoading(false); // Ensure loading is set to false after fetching
     }
-
-    if (!response.ok) {
-      throw new Error(`HTTP status ${response.status}`);
-    }
-
-    // Check if the response body is empty
-    const text = await response.text();
-    if (!text) {
-      // console.log("No user profile available (empty response).");
-      return;  // Don't throw an error, just return silently
-    }
-
-    // Attempt to parse the JSON
-    const data = JSON.parse(text);
-
-    // Optional: Add validation to check if the expected fields are present
-    if (!data || typeof data !== 'object' || !data.username) {
-      throw new Error("Invalid JSON format");
-    }
-
-    setUserProfile(data);
-  } catch (error) {
-    console.error("Failed to fetch user profile:", error.message);
-  }
-};
-
-
-
-  
+  };
 
   // Fetch user profile once when the component mounts
   useEffect(() => {
@@ -94,12 +96,14 @@ const fetchUserProfile = async () => {
   // Context provider value
   const value = {
     userProfile,
-    setUserProfile
+    setUserProfile,
+    loading,
   };
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  // Return a loading spinner or similar component until user profile is fetched
+  if (loading) {
+    return <div>Loading user profile...</div>; // Or a better loading UI
+  }
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };

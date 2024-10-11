@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import useAuth from "./hooks/useAuth";
@@ -16,41 +21,97 @@ function App() {
   const { authenticated, loading: authLoading } = useAuth();
   const { userProfile } = useUser();
   const username = userProfile.username;
-  const { isAuthorized, loading: authzLoading, error } = useAuthorization(username, 'write', 'adminPanel');
 
-  // Combine loading states and check if there's an error (optional)
-  // if (authLoading || authzLoading) {
-  if (isAuthorized === (false || null) || authLoading || authzLoading) {
-    // console.log(isAuthorized);
-    return <div className="h-screen w-screen flex justify-center items-center">
-      <l-bouncy
-        size="45"
-        speed="1.75"
-        color="black"
-      ></l-bouncy></div>;
+  // Authorization checks for different routes
+  const {
+    isAuthorized: isAdminAuthorized,
+    loading: authzLoadingAdmin,
+    error: adminAuthzError,
+  } = useAuthorization(username, "write", "adminPanel");
+  const {
+    isAuthorized: canAccessEvents,
+    loading: authzLoadingEvents,
+    error: eventAuthzError,
+  } = useAuthorization(username, "read", "events");
+
+  // Combine loading states for all routes
+  const isLoading = authLoading || authzLoadingAdmin || authzLoadingEvents;
+
+  // Show loading spinner while waiting for authentication or authorization
+  if (isLoading) {
+    return (
+      <div className="h-screen w-screen flex justify-center items-center">
+        <l-bouncy size="45" speed="1.75" color="black"></l-bouncy>
+      </div>
+    );
   }
 
-  // if (error) {
-  //   console.error("Authorization Error:", error);
-  //   return <div>Error checking authorization.</div>;
-  // }
+  // Handle authorization errors if any
+  if (adminAuthzError || eventAuthzError) {
+    console.error("Authorization Error:", adminAuthzError || eventAuthzError);
+    return <div>Error checking authorization.</div>;
+  }
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={authenticated ? <Navigate to="/home" /> : <Login />} />
-        <Route path="/home" element={authenticated ? <Home /> : <Navigate to="/" />} />
-        {/* <Route path="/home" element={<Home />} /> */}
-        <Route path="/admin"
-          // element={authenticated ? (isAuthorized ? <AdminPage /> : <Navigate to="/not-authorized" />) : <Navigate to="/" />}
-          element={authenticated ? <AdminPage /> : <Navigate to="/" />}
+        <Route
+          path="/"
+          element={authenticated ? <Navigate to="/home" /> : <Login />}
         />
-        <Route path="/eventcreate"
-          element={authenticated ? (isAuthorized ? <CreateEvent /> : <Navigate to="/not-authorized" />) : <Navigate to="/" />}
+        <Route
+          path="/home"
+          element={authenticated ? <Home /> : <Navigate to="/" />}
         />
-        <Route path="/events/:id"
-          element={authenticated ? <EventDetails /> : <Navigate to="/" />}
+
+        {/* Admin Page Authorization */}
+        <Route
+          path="/admin"
+          element={
+            authenticated ? (
+              isAdminAuthorized ? (
+                <AdminPage />
+              ) : (
+                <Navigate to="/not-authorized" />
+              )
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
+
+        {/* Event Creation Authorization */}
+        <Route
+          path="/eventcreate"
+          element={
+            authenticated ? (
+              isAdminAuthorized ? (
+                <CreateEvent />
+              ) : (
+                <Navigate to="/not-authorized" />
+              )
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
+        {/* Event Details Authorization */}
+        <Route
+          path="/events/:id"
+          element={
+            authenticated ? (
+              canAccessEvents ? (
+                <EventDetails />
+              ) : (
+                <Navigate to="/not-authorized" />
+              )
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+
         <Route path="/not-authorized" element={<NotAuthorized />} />
       </Routes>
     </Router>

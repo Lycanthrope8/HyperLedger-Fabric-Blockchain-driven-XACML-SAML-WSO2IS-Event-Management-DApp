@@ -3,14 +3,26 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
-// import { useUser } from '../contexts/UserContext';
+import useAuthorization from "../hooks/useAuthorization";
+import { useUser } from "../contexts/UserContext";
 
 function Home() {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const { userProfile } = useUser();
 
+  const { userProfile } = useUser();
+  const username = userProfile?.username;
+
+  // Authorization for creating events
+  const { isAuthorized: canCreateEvent, loading: authzLoadingCreate } =
+    useAuthorization(username, "write", "events");
+
+  // Authorization for viewing events
+  const { isAuthorized: canViewEvents, loading: authzLoadingView } =
+    useAuthorization(username, "read", "events");
+
+  // Fetch events from the API
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -22,6 +34,7 @@ function Home() {
         setLoading(false);
       }
     };
+
     fetchEvents();
   }, []);
 
@@ -61,6 +74,13 @@ function Home() {
     }
   };
 
+  // Display loading spinner while waiting for authorization checks
+  if (loading || authzLoadingCreate || authzLoadingView) {
+    return (
+      <div className="flex justify-center items-center h-full">Loading...</div>
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -78,19 +98,21 @@ function Home() {
             alt="hero banner"
           />
         </div>
-        <div className="w-full flex justify-end pt-4 pr-4">
-          <button
-            className="text-zinc-50 font-medium bg-[#e74b2d] w-48 py-4 px-4 rounded hover:brightness-110 transition-all"
-            onClick={handleCreateEvent}
-          >
-            Create Event
-          </button>
-        </div>
-        {loading ? (
-          <div className="flex justify-center items-center h-full">
-            Loading...
+
+        {/* Conditionally render Create Event button if authorized */}
+        {canCreateEvent && (
+          <div className="w-full flex justify-end pt-4 pr-4">
+            <button
+              className="text-zinc-50 font-medium bg-[#e74b2d] w-48 py-4 px-4 rounded hover:brightness-110 transition-all"
+              onClick={handleCreateEvent}
+            >
+              Create Event
+            </button>
           </div>
-        ) : (
+        )}
+
+        {/* Conditionally render events list or "not authorized" message */}
+        {canViewEvents ? (
           <div className="grid grid-cols-3 gap-4 w-full p-8 pt-4">
             {posts.map((post) => (
               <Post
@@ -107,6 +129,10 @@ function Home() {
                 onClick={() => handlePostClick(post._id)}
               />
             ))}
+          </div>
+        ) : (
+          <div className="flex justify-center items-center h-full text-xl font-semibold">
+            You are not authorized to view events.
           </div>
         )}
       </div>

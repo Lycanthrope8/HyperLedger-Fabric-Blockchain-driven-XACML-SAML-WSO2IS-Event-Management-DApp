@@ -7,7 +7,7 @@ function Navbar() {
   const navigate = useNavigate();
   const { userProfile } = useUser();
   const username = userProfile.username;
-  console.log('Username:', username);
+  // console.log('Username:', username);
   const { isAuthorized, loading, error } = useAuthorization(username, 'write', 'roles');
 
   const isLoading = loading || !isAuthorized;
