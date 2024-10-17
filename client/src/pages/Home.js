@@ -5,8 +5,10 @@ import Navbar from "../components/Navbar";
 import Post from "../components/Post";
 import useAuthorization from "../hooks/useAuthorization";
 import { useUser } from "../contexts/UserContext";
+import { bouncy } from "ldrs";
 
 function Home() {
+  bouncy.register();
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,11 +87,13 @@ function Home() {
   };
 
   // Display loading spinner while waiting for authorization checks
-  if (loading || authzLoadingCreate || authzLoadingView) {
-    return (
-      <div className="flex justify-center items-center h-full">Loading...</div>
-    );
-  }
+  // if (loading || authzLoadingCreate || authzLoadingView) {
+  //   return (
+  //     <div className="h-screen w-screen flex justify-center items-center">
+  //       <l-bouncy size="45" speed="1.75" color="black"></l-bouncy>
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

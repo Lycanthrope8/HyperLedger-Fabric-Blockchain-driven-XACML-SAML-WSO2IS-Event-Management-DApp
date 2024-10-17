@@ -151,29 +151,45 @@ async function isPeerAvailable(peerEndpoint) {
     });
 }
 
+let counter = 0; // Initialize counter to track peer selection
+
 async function newGrpcConnection() {
     return retryWithBackoff(3, async () => {
-        // Attempt connection to Org1 peer first
-        if (await isPeerAvailable(peerEndpointOrg1)) {
-            console.log("Connecting to Org1 peer...");
-            const tlsRootCert = await fs.readFile(tlsCertPathOrg1);
-            const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
-            return new grpc.Client(peerEndpointOrg1, tlsCredentials, {
-                'grpc.ssl_target_name_override': peerHostAliasOrg1,
-            });
+        counter += 1; // Increment counter each time a connection is requested
+
+        // If the counter is even, try Org1 peer first
+        if (counter % 2 === 0) {
+            //   console.log(`Attempting connection to Org1 (Counter: ${counter})`);
+            if (await isPeerAvailable(peerEndpointOrg1)) {
+                // console.log("Org1 peer is available, connecting...");
+                const tlsRootCert = await fs.readFile(tlsCertPathOrg1);
+                const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
+                return new grpc.Client(peerEndpointOrg1, tlsCredentials, {
+                    "grpc.ssl_target_name_override": peerHostAliasOrg1,
+                });
+            } else {
+                // console.log("Org1 peer is unavailable.");
+            }
         }
 
-        // If Org1 is down, fallback to Org2 peer
-        if (await isPeerAvailable(peerEndpointOrg2)) {
-            console.log("Org1 peer unavailable, connecting to Org2 peer...");
-            const tlsRootCertOrg2 = await fs.readFile(tlsCertPathOrg2);
-            const tlsCredentialsOrg2 = grpc.credentials.createSsl(tlsRootCertOrg2);
-            return new grpc.Client(peerEndpointOrg2, tlsCredentialsOrg2, {
-                'grpc.ssl_target_name_override': peerHostAliasOrg2,
-            });
+        // If counter is odd, try Org2 peer first
+        if (counter % 2 !== 0) {
+            //   console.log(`Attempting connection to Org2 (Counter: ${counter})`);
+            if (await isPeerAvailable(peerEndpointOrg2)) {
+                // console.log("Org2 peer is available, connecting...");
+                const tlsRootCertOrg2 = await fs.readFile(tlsCertPathOrg2);
+                const tlsCredentialsOrg2 = grpc.credentials.createSsl(tlsRootCertOrg2);
+                return new grpc.Client(peerEndpointOrg2, tlsCredentialsOrg2, {
+                    "grpc.ssl_target_name_override": peerHostAliasOrg2,
+                });
+            } else {
+                // console.log("Org2 peer is unavailable.");
+            }
         }
 
-        throw new Error('No available peers found');
+        // If neither peer is available, throw an error
+        console.log("Both Org1 and Org2 peers are unavailable after retries.");
+        throw new Error("No available peers found");
     });
 }
 
@@ -249,58 +265,58 @@ async function evaluatePolicy(request) {
 }
 
 async function setRole(username, roles) {
-  const client = await newGrpcConnection();
-  const gateway = connect({
-    client,
-    identity: await newIdentity("Org1"),
-    signer: await newSigner("Org1"),
-    discovery: { enabled: true, asLocalhost: true },
-  });
-  try {
-    const contract = await getContractInstance(
-      gateway,
-      channelName,
-      "chaincodePIP"
-    );
-    await contract.submitTransaction("setRole", username, roles);
-    return "Role set successfully";
-  } catch (error) {
-    console.error(`Error setting role: ${error.message}`);
-    throw error;
-  } finally {
-    gateway.close();
-    client.close();
-  }
+    const client = await newGrpcConnection();
+    const gateway = connect({
+        client,
+        identity: await newIdentity("Org1"),
+        signer: await newSigner("Org1"),
+        discovery: { enabled: true, asLocalhost: true },
+    });
+    try {
+        const contract = await getContractInstance(
+            gateway,
+            channelName,
+            "chaincodePIP"
+        );
+        await contract.submitTransaction("setRole", username, roles);
+        return "Role set successfully";
+    } catch (error) {
+        console.error(`Error setting role: ${error.message}`);
+        throw error;
+    } finally {
+        gateway.close();
+        client.close();
+    }
 }
 
 async function setDefaultRole(username, roles) {
-  const client = await newGrpcConnection();
-  const gateway = connect({
-    client,
-    identity: await newIdentity("Org1"),
-    signer: await newSigner("Org1"),
-    discovery: { enabled: true, asLocalhost: true },
-  });
-  try {
-    const contract = await getContractInstance(
-      gateway,
-      channelName,
-      "chaincodePIP"
-    );
-    // Ensure the roles are passed as a string
-    await contract.submitTransaction(
-      "setRole",
-      username,
-      JSON.stringify(roles)
-    );
-    return "Role set successfully";
-  } catch (error) {
-    console.error(`Error setting role: ${error.message}`);
-    throw error;
-  } finally {
-    gateway.close();
-    client.close();
-  }
+    const client = await newGrpcConnection();
+    const gateway = connect({
+        client,
+        identity: await newIdentity("Org1"),
+        signer: await newSigner("Org1"),
+        discovery: { enabled: true, asLocalhost: true },
+    });
+    try {
+        const contract = await getContractInstance(
+            gateway,
+            channelName,
+            "chaincodePIP"
+        );
+        // Ensure the roles are passed as a string
+        await contract.submitTransaction(
+            "setRole",
+            username,
+            JSON.stringify(roles)
+        );
+        return "Role set successfully";
+    } catch (error) {
+        console.error(`Error setting role: ${error.message}`);
+        throw error;
+    } finally {
+        gateway.close();
+        client.close();
+    }
 }
 
 
@@ -521,6 +537,6 @@ module.exports = {
     getAllUsers,
     getUsersByRole,
     checkUserExists,
-    deleteUser,       
-    removeRole,       
+    deleteUser,
+    removeRole,
 };

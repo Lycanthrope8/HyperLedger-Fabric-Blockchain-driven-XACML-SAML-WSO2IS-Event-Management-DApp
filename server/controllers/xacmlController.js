@@ -3,7 +3,7 @@ const fabricFunctions = require("../lib/app"); // Adjust the path if necessary
 
 const enforceAccessControl = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
+    // console.log("Request Body:", req.body);
     const { subject, action, resource } = req.body;
     const result = await fabricFunctions.enforceAccessControl(
       subject,

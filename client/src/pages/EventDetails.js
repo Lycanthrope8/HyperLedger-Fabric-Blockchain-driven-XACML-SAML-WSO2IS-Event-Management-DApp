@@ -30,10 +30,15 @@ function EventDetails() {
   const navigate = useNavigate();
   const { userProfile } = useUser();
   const { id } = useParams();
-  const username = userProfile?.username; 
+  const username = userProfile?.username;
   const { isAuthorized: canEdit } = useAuthorization(
     username,
     "update",
+    "events"
+  );
+  const { isAuthorized: canDelete } = useAuthorization(
+    username,
+    "delete",
     "events"
   );
   useEffect(() => {
@@ -53,7 +58,6 @@ function EventDetails() {
         image: response.data.image,
       });
     };
-
     fetchEventDetails();
   }, [id]);
 
@@ -163,7 +167,7 @@ function EventDetails() {
 
   if (!post) {
     return (
-      <div className="text-center text-zinc-700 text-xl">Event not found</div>
+      <div className="min-h-screen flex justify-center items-center text-zinc-700 text-xl">Event not found</div>
     );
   }
 
@@ -228,9 +232,8 @@ function EventDetails() {
               </p>
               {!editing && (
                 <button
-                  className={`flex items-center gap-2 ${
-                    booked ? "bg-[#58e72d]/50" : "bg-[#e74b2d]/50"
-                  } hover:brightness-90 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all`}
+                  className={`flex items-center gap-2 ${booked ? "bg-[#58e72d]/50" : "bg-[#e74b2d]/50"
+                    } hover:brightness-90 text-zinc-700 font-bold py-2 px-4 rounded mb-8 transition-all`}
                   onClick={() => handleBooking()}
                 >
                   <IoTicketSharp className="text-xl" />
@@ -306,7 +309,7 @@ function EventDetails() {
                   <TbEdit size={32} />
                 </button>
                 {userProfile?.username ===
-                  post.organizer &&(
+                  post.organizer && (
                     <button
                       onClick={() => setShowModal(true)}
                       className=" text-zinc-700 hover:text-red-600 rounded p-1 shadow-md transition-all"
@@ -322,11 +325,10 @@ function EventDetails() {
         {!editing && (
           <div className="flex space-x-4 mt-4">
             <button
-              className={`flex items-center gap-2 border ${
-                !interested
-                  ? "border-[#e74b2d]/80 text-[#e74b2d]"
-                  : "bg-[#e74b2d]/80 text-zinc-50"
-              } hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
+              className={`flex items-center gap-2 border ${!interested
+                ? "border-[#e74b2d]/80 text-[#e74b2d]"
+                : "bg-[#e74b2d]/80 text-zinc-50"
+                } hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
               onClick={() => handleInterested()}
             >
               {interested ? (
@@ -337,11 +339,10 @@ function EventDetails() {
               Interested
             </button>
             <button
-              className={`flex items-center gap-2 border ${
-                !going
-                  ? "border-[#e74b2d]/80 text-[#e74b2d]"
-                  : "bg-[#e74b2d]/80 text-zinc-50"
-              } hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
+              className={`flex items-center gap-2 border ${!going
+                ? "border-[#e74b2d]/80 text-[#e74b2d]"
+                : "bg-[#e74b2d]/80 text-zinc-50"
+                } hover:bg-[#e74b2d]/10 font-bold py-2 px-4 rounded transition-all`}
               onClick={() => handleGoing()}
             >
               {going ? (
@@ -353,7 +354,7 @@ function EventDetails() {
             </button>
           </div>
         )}
-      </div>
+      </div >
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center">
           <div className="bg-zinc-300 p-6 rounded-lg text-center text-zinc-700 shadow-lg">
@@ -375,7 +376,8 @@ function EventDetails() {
             </div>
           </div>
         </div>
-      )}
+      )
+      }
     </>
   );
 }
