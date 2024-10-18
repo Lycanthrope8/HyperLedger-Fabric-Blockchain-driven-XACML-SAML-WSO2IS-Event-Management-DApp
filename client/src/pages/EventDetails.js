@@ -34,6 +34,12 @@ function EventDetails() {
   const { userProfile } = useUser();
   const { id } = useParams();
   const username = userProfile?.username;
+  const { isAuthorized: isAdmin } = useAuthorization(
+    username,
+    "read",
+    "adminPanel"
+  );
+  console.log(isAdmin);
   const { isAuthorized: canEdit } = useAuthorization(
     username,
     "update",
@@ -315,7 +321,7 @@ function EventDetails() {
                 </button>
               )}
             </div>
-            {(userProfile?.username === post.organizer || canEdit) && (
+            {(userProfile?.username === post.organizer && canDelete && !isAdmin) && (
               <div className="flex gap-4 justify-center items-start">
                 <button
                   onClick={toggleEdit}
@@ -324,16 +330,42 @@ function EventDetails() {
                 >
                   <TbEdit size={32} />
                 </button>
-                {userProfile?.username ===
-                  post.organizer && (
-                    <button
-                      onClick={() => setShowModal(true)}
-                      className=" text-zinc-700 hover:text-red-600 rounded p-1 shadow-md transition-all"
-                      title="Delete Event"
-                    >
-                      <TbTrash size={32} />
-                    </button>
-                  )}
+                <button
+                  onClick={() => setShowModal(true)}
+                  className=" text-zinc-700 hover:text-red-600 rounded p-1 shadow-md transition-all"
+                  title="Delete Event"
+                >
+                  <TbTrash size={32} />
+                </button>
+              </div>
+            )}
+            {!canDelete && canEdit && (
+              <div className="flex gap-4 justify-center items-start">
+                <button
+                  onClick={toggleEdit}
+                  className=" text-zinc-700 hover:text-yellow-600 rounded p-1 shadow-md transition-all"
+                  title="Edit Event"
+                >
+                  <TbEdit size={32} />
+                </button>
+              </div>
+            )}
+            {isAdmin && (
+              <div className="flex gap-4 justify-center items-start">
+                <button
+                  onClick={toggleEdit}
+                  className=" text-zinc-700 hover:text-yellow-600 rounded p-1 shadow-md transition-all"
+                  title="Edit Event"
+                >
+                  <TbEdit size={32} />
+                </button>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className=" text-zinc-700 hover:text-red-600 rounded p-1 shadow-md transition-all"
+                  title="Delete Event"
+                >
+                  <TbTrash size={32} />
+                </button>
               </div>
             )}
           </div>
