@@ -10,8 +10,10 @@ import { useUser } from "../contexts/UserContext";
 import moment from "moment";
 import { useDropzone } from "react-dropzone";
 import useAuthorization from "../hooks/useAuthorization";
+import { bouncy } from "ldrs";
 
 function EventDetails() {
+  bouncy.register();
   const [interested, setInterested] = useState(false);
   const [going, setGoing] = useState(false);
   const [booked, setBooked] = useState(false);
@@ -19,6 +21,7 @@ function EventDetails() {
   const [editing, setEditing] = useState(false);
   const [files, setFiles] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -43,23 +46,29 @@ function EventDetails() {
   );
   useEffect(() => {
     const fetchEventDetails = async () => {
-      const response = await axios.get(`https://localhost:3000/events/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userProfile.username}`,
-        },
-        withCredentials: true, // Include credentials if necessary
-      });
-      setPost(response.data);
-      setFormData({
-        title: response.data.title,
-        description: response.data.description,
-        date: response.data.date.split("T")[0],
-        location: response.data.location,
-        image: response.data.image,
-      });
+      try {
+        const response = await axios.get(`https://localhost:3000/events/${id}`, {
+          headers: {
+            Authorization: `Bearer ${userProfile.username}`,
+          },
+          withCredentials: true, // Include credentials if necessary
+        });
+        setPost(response.data);
+        setFormData({
+          title: response.data.title,
+          description: response.data.description,
+          date: response.data.date.split("T")[0],
+          location: response.data.location,
+          image: response.data.image,
+        });
+      } catch (error) {
+        console.error("Failed to fetch event details:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchEventDetails();
-  }, [id]);
+  }, [id, userProfile.username]);
 
   const toggleEdit = () => {
     setEditing(!editing);
@@ -164,6 +173,13 @@ function EventDetails() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex justify-center items-center">
+        <l-bouncy size="45" speed="1.75" color="black"></l-bouncy>
+      </div>
+    );
+  }
 
   if (!post) {
     return (

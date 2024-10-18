@@ -87,13 +87,13 @@ function Home() {
   };
 
   // Display loading spinner while waiting for authorization checks
-  // if (loading || authzLoadingCreate || authzLoadingView) {
-  //   return (
-  //     <div className="h-screen w-screen flex justify-center items-center">
-  //       <l-bouncy size="45" speed="1.75" color="black"></l-bouncy>
-  //     </div>
-  //   );
-  // }
+  if (loading || authzLoadingCreate || authzLoadingView) {
+    return (
+      <div className="h-screen w-screen flex justify-center items-center">
+        <l-bouncy size="45" speed="1.75" color="black"></l-bouncy>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -113,19 +113,16 @@ function Home() {
           />
         </div>
 
-        {/* Conditionally render Create Event button if authorized */}
-        {canCreateEvent && (
-          <div className="w-full flex justify-end pt-4 pr-4">
-            <button
-              className="text-zinc-50 font-medium bg-[#e74b2d] w-48 py-4 px-4 rounded hover:brightness-110 transition-all"
-              onClick={handleCreateEvent}
-            >
-              Create Event
-            </button>
-          </div>
-        )}
 
-        {/* Conditionally render events list or "not authorized" message */}
+        <div className="w-full flex justify-end pt-4 pr-4">
+          <button
+            className="text-zinc-50 font-medium bg-[#e74b2d] w-48 py-4 px-4 rounded hover:brightness-110 transition-all"
+            onClick={handleCreateEvent}
+          >
+            Create Event
+          </button>
+        </div>
+
         {canViewEvents ? (
           <div className="grid grid-cols-3 gap-4 w-full p-8 pt-4">
             {posts.map((post) => (
